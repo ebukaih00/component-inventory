@@ -1,0 +1,223 @@
+{
+  "url": "http://fixture.test/billing.html",
+  "title": "Billing · Acme Ops",
+  "candidates": [
+    {
+      "localId": 0,
+      "kind": "nav",
+      "subkind": "nav",
+      "fingerprint": {
+        "structure": "nav(a+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 32,
+          "paddingBottom": 0,
+          "paddingLeft": 32,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#14213dff",
+          "color": "#222222ff",
+          "height": 56,
+          "shadow": false
+        },
+        "classes": [
+          "topnav"
+        ]
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 56
+      },
+      "selectorPath": "body > div > nav",
+      "fixtureKey": "nav-main"
+    },
+    {
+      "localId": 1,
+      "kind": "nav",
+      "subkind": "tabs",
+      "fingerprint": {
+        "structure": "div(button+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#e5e7ebff",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 35,
+          "shadow": false
+        },
+        "classes": [
+          "tabs"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 122,
+        "width": 1216,
+        "height": 35
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(1)",
+      "fixtureKey": "tabs-account"
+    },
+    {
+      "localId": 2,
+      "kind": "input",
+      "subkind": "text",
+      "fingerprint": {
+        "structure": "input",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 8,
+          "paddingRight": 10,
+          "paddingBottom": 8,
+          "paddingLeft": 10,
+          "radius": 4,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#cbd5e1ff",
+          "background": "#ffffffff",
+          "color": "#111111ff",
+          "height": 36,
+          "shadow": false
+        },
+        "classes": [
+          "text-input"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 200,
+        "width": 320,
+        "height": 36
+      },
+      "selectorPath": "#vat",
+      "fixtureKey": "input-text"
+    },
+    {
+      "localId": 3,
+      "kind": "input",
+      "subkind": "checkbox",
+      "fingerprint": {
+        "structure": "input",
+        "style": {
+          "fontFamily": "Arial",
+          "fontSize": 13.3333,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#000000ff",
+          "height": 16,
+          "shadow": false
+        },
+        "classes": [
+          "check"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 252,
+        "width": 16,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(3) > label > input",
+      "fixtureKey": "checkbox"
+    },
+    {
+      "localId": 4,
+      "kind": "button",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "button",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 13,
+          "fontWeight": 400,
+          "paddingTop": 6,
+          "paddingRight": 12,
+          "paddingBottom": 6,
+          "paddingLeft": 12,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#2563ebff",
+          "background": "#00000000",
+          "color": "#2563ebff",
+          "height": 32,
+          "shadow": false
+        },
+        "classes": [
+          "ghost",
+          "ghost-r6"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 287,
+        "width": 100.4375,
+        "height": 32
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(4) > button",
+      "fixtureKey": "btn-ghost-r6"
+    },
+    {
+      "localId": 5,
+      "kind": "table",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "table(thead(tr(th+)),tbody(tr(td+)+))",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#ffffffff",
+          "color": "#222222ff",
+          "height": 132,
+          "shadow": false
+        },
+        "classes": [
+          "invoices"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 343,
+        "width": 560,
+        "height": 132
+      },
+      "selectorPath": "body > div > main > table",
+      "fixtureKey": "table-invoices"
+    }
+  ]
+}

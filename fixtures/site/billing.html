@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billing · Acme Ops</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="wrapper">
+  <nav class="topnav" data-ci-key="nav-main">
+    <a href="index.html">Dashboard</a>
+    <a href="projects.html">Projects</a>
+    <a href="settings.html">Settings</a>
+    <a href="billing.html">Billing</a>
+  </nav>
+  <main class="page">
+    <h1>Billing</h1>
+    <div class="tabs" role="tablist" data-ci-key="tabs-account">
+      <button class="tab" role="tab" aria-selected="false">Profile</button>
+      <button class="tab" role="tab" aria-selected="true">Billing</button>
+      <button class="tab" role="tab" aria-selected="false">Team</button>
+    </div>
+    <div class="field"><label for="vat">VAT number</label><input id="vat" class="text-input" type="text" value="GB123" data-ci-key="input-text"></div>
+    <div class="field"><label><input type="checkbox" class="check" data-ci-key="checkbox"> Send invoices by email</label></div>
+    <div class="toolbar">
+      <button type="button" class="ghost ghost-r6" data-ci-key="btn-ghost-r6">Download all</button>
+    </div>
+    <table class="invoices" data-ci-key="table-invoices">
+      <thead><tr><th>Invoice</th><th>Date</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>INV-001</td><td>1 Oct</td><td>£120</td></tr>
+        <tr><td>INV-002</td><td>1 Sep</td><td>£120</td></tr>
+        <tr><td>INV-003</td><td>1 Aug</td><td>£95</td></tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+</body>
+</html>

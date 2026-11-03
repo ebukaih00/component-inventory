@@ -1,0 +1,58 @@
+/*
+ * Design tokens — the ONLY colours, sizes and radii the UI may use.
+ * See DESIGN.md. The Figma plugin mirrors these values in figma-plugin/src/tokens.ts.
+ */
+:root {
+  /* 8 neutral greys (0 = page, 7 = strongest text) */
+  --grey-0: #ffffff;
+  --grey-1: #f7f7f6;
+  --grey-2: #eeeeec;
+  --grey-3: #e0e0dd;
+  --grey-4: #c4c4c0;
+  --grey-5: #8d8d88;
+  --grey-6: #5c5c58;
+  --grey-7: #1f1f1d;
+
+  /* 1 accent, for actions only */
+  --accent: #2456d6;
+  --accent-hover: #1b45b3;
+  --accent-soft: #e8eefc;
+
+  /* Bucket colours — they mean the bucket and nothing else */
+  --bucket-common: #2f8a4f;
+  --bucket-common-soft: #e6f3ea;
+  --bucket-couldbeone: #b7791f;
+  --bucket-couldbeone-soft: #fbf1e1;
+  --bucket-oneoff: #8d8d88;
+  --bucket-oneoff-soft: #eeeeec;
+
+  /* Error is shown with grey-7 text and the amber soft background; no extra hue. */
+
+  /* Type: system stack, 4 sizes, 2 weights */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+  --text-15: 15px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  /* 4px grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Shape */
+  --radius-control: 4px;
+  --radius-tile: 6px;
+  --border: 1px solid var(--grey-3);
+  --shadow-menu: 0 4px 12px rgba(31, 31, 29, 0.12);
+
+  /* Thumbnails */
+  --thumb-height: 48px;
+  --checker: repeating-conic-gradient(var(--grey-2) 0% 25%, var(--grey-0) 0% 50%) 0 0 / 12px 12px;
+}

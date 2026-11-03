@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-e2e
+dist-spike
+figma-plugin/dist
+test-results
+playwright-report
+*.log

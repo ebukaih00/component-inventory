@@ -1,0 +1,43 @@
+<style>
+  :root { --grey-0:#fff; --grey-2:#eeeeec; --grey-3:#e0e0dd; --grey-5:#8d8d88; --grey-7:#1f1f1d; --accent:#2456d6; --amber-soft:#fbf1e1; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 12px; font: 400 12px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--figma-color-text, var(--grey-7)); background: var(--figma-color-bg, var(--grey-0)); }
+  p { margin: 0 0 8px; }
+  .meta { font-size: 11px; color: var(--figma-color-text-secondary, var(--grey-5)); }
+  textarea { width: 100%; height: 150px; resize: none; padding: 8px; border: 1px solid var(--figma-color-border, var(--grey-3)); border-radius: 4px; font: 11px ui-monospace, Menlo, monospace; background: transparent; color: inherit; }
+  .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  button { height: 28px; padding: 0 12px; border-radius: 4px; font: 500 12px system-ui, sans-serif; cursor: pointer; }
+  .primary { background: var(--accent); color: #fff; border: 0; }
+  .secondary { background: transparent; color: inherit; border: 1px solid var(--figma-color-border, var(--grey-3)); }
+  .error { margin-top: 8px; padding: 8px; border-radius: 4px; background: var(--amber-soft); color: var(--grey-7); display: none; }
+  input[type=file] { display: none; }
+  .spacer { flex: 1; }
+</style>
+<p>Paste the export from the side panel (<b>Copy for Figma</b>), or choose the downloaded JSON file.</p>
+<textarea id="json" placeholder='{"schema":"component-inventory/1", …}'></textarea>
+<div class="row">
+  <label class="secondary" style="display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:4px;cursor:pointer;border:1px solid var(--figma-color-border, #e0e0dd)">
+    Choose file<input id="file" type="file" accept="application/json,.json">
+  </label>
+  <span class="spacer"></span>
+  <button class="primary" id="build">Build board</button>
+</div>
+<div class="error" id="error" role="alert"></div>
+<p class="meta" style="margin-top:8px">Nothing leaves Figma. The board uses the same tokens as the extension.</p>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const showError = (m) => { $('error').textContent = m; $('error').style.display = m ? 'block' : 'none'; };
+  $('file').onchange = async (e) => { const f = e.target.files[0]; if (f) $('json').value = await f.text(); };
+  $('build').onclick = () => {
+    showError('');
+    const json = $('json').value.trim();
+    if (!json) return showError('Paste the export first.');
+    $('build').disabled = true; $('build').textContent = 'Building…';
+    parent.postMessage({ pluginMessage: { type: 'build', json } }, '*');
+  };
+  onmessage = (e) => {
+    const msg = e.data.pluginMessage; if (!msg) return;
+    $('build').disabled = false; $('build').textContent = 'Build board';
+    if (msg.type === 'error') showError(msg.message);
+  };
+</script>

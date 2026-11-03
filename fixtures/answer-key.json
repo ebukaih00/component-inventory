@@ -1,0 +1,25 @@
+{
+  "$comment": "Expected result for fixtures/site. Every element with a data-ci-key is planted. 'bucket' is where the key's variant must land. Keys in the same 'group' must be flagged as probably the same. Keys with detected=false must not be picked up at all. Any detection without a key is a false positive.",
+  "pages": ["index.html", "projects.html", "settings.html", "billing.html"],
+  "items": {
+    "nav-main":             { "kind": "nav",    "bucket": "common",     "instances": 4 },
+    "btn-primary":          { "kind": "button", "bucket": "common",     "instances": 3 },
+    "btn-secondary":        { "kind": "button", "bucket": "common",     "instances": 2 },
+    "btn-ghost-r4":         { "kind": "button", "bucket": "couldBeOne", "group": "ghost" },
+    "btn-ghost-r6":         { "kind": "button", "bucket": "couldBeOne", "group": "ghost" },
+    "btn-ghost-r8":         { "kind": "button", "bucket": "couldBeOne", "group": "ghost" },
+    "btn-danger-oneoff":    { "kind": "button", "bucket": "oneOff",     "instances": 1, "closest": "btn-primary" },
+    "badge-status":         { "kind": "badge",  "bucket": "common",     "instances": 5 },
+    "badge-promo":          { "kind": "badge",  "bucket": "oneOff",     "instances": 1 },
+    "card-project":         { "kind": "card",   "bucket": "couldBeOne", "instances": 4 },
+    "input-text":           { "kind": "input",  "bucket": "common",     "instances": 3 },
+    "select-country":       { "kind": "input",  "bucket": "oneOff",     "instances": 1 },
+    "checkbox":             { "kind": "input",  "bucket": "common",     "instances": 2 },
+    "toggle-notifications": { "kind": "input",  "bucket": "oneOff",     "instances": 1 },
+    "tabs-account":         { "kind": "nav",    "bucket": "common",     "instances": 2 },
+    "table-invoices":       { "kind": "table",  "bucket": "oneOff",     "instances": 1 },
+    "skip-offscreen":       { "detected": false },
+    "skip-display-none":    { "detected": false },
+    "skip-invisible":       { "detected": false }
+  }
+}

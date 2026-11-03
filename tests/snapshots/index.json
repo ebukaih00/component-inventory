@@ -1,0 +1,225 @@
+{
+  "url": "http://fixture.test/index.html",
+  "title": "Dashboard · Acme Ops",
+  "candidates": [
+    {
+      "localId": 0,
+      "kind": "nav",
+      "subkind": "nav",
+      "fingerprint": {
+        "structure": "nav(a+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 32,
+          "paddingBottom": 0,
+          "paddingLeft": 32,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#14213dff",
+          "color": "#222222ff",
+          "height": 56,
+          "shadow": false
+        },
+        "classes": [
+          "topnav"
+        ]
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 56
+      },
+      "selectorPath": "body > div > nav",
+      "fixtureKey": "nav-main"
+    },
+    {
+      "localId": 1,
+      "kind": "button",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "button",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 500,
+          "paddingTop": 8,
+          "paddingRight": 16,
+          "paddingBottom": 8,
+          "paddingLeft": 16,
+          "radius": 6,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#2563ebff",
+          "color": "#ffffffff",
+          "height": 36,
+          "shadow": false
+        },
+        "classes": [
+          "btn",
+          "btn-primary"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 122,
+        "width": 107.921875,
+        "height": 36
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(1) > button:nth-of-type(1)",
+      "fixtureKey": "btn-primary"
+    },
+    {
+      "localId": 2,
+      "kind": "button",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "button",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 500,
+          "paddingTop": 8,
+          "paddingRight": 16,
+          "paddingBottom": 8,
+          "paddingLeft": 16,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#d1d5dbff",
+          "background": "#ffffffff",
+          "color": "#111111ff",
+          "height": 36,
+          "shadow": false
+        },
+        "classes": [
+          "btn",
+          "btn-secondary"
+        ]
+      },
+      "rect": {
+        "x": 147.921875,
+        "y": 122,
+        "width": 74.46875,
+        "height": 36
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(1) > button:nth-of-type(2)",
+      "fixtureKey": "btn-secondary"
+    },
+    {
+      "localId": 3,
+      "kind": "button",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "button",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 13,
+          "fontWeight": 400,
+          "paddingTop": 6,
+          "paddingRight": 12,
+          "paddingBottom": 6,
+          "paddingLeft": 12,
+          "radius": 4,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#2563ebff",
+          "background": "#00000000",
+          "color": "#2563ebff",
+          "height": 32,
+          "shadow": false
+        },
+        "classes": [
+          "ghost",
+          "ghost-r4"
+        ]
+      },
+      "rect": {
+        "x": 230.390625,
+        "y": 122,
+        "width": 54.890625,
+        "height": 32
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(1) > button:nth-of-type(3)",
+      "fixtureKey": "btn-ghost-r4"
+    },
+    {
+      "localId": 4,
+      "kind": "badge",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "span",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 12,
+          "fontWeight": 400,
+          "paddingTop": 2,
+          "paddingRight": 8,
+          "paddingBottom": 2,
+          "paddingLeft": 8,
+          "radius": 10,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#dcfce7ff",
+          "color": "#166534ff",
+          "height": 20,
+          "shadow": false
+        },
+        "classes": [
+          "badge"
+        ]
+      },
+      "rect": {
+        "x": 79.46875,
+        "y": 182,
+        "width": 56.6875,
+        "height": 20
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(2) > p:nth-of-type(1) > span:nth-of-type(1)",
+      "fixtureKey": "badge-status"
+    },
+    {
+      "localId": 5,
+      "kind": "badge",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "span",
+        "style": {
+          "fontFamily": "Arial, sans-serif",
+          "fontSize": 11,
+          "fontWeight": 700,
+          "paddingTop": 4,
+          "paddingRight": 10,
+          "paddingBottom": 4,
+          "paddingLeft": 10,
+          "radius": 2,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#7c3aedff",
+          "color": "#ffffffff",
+          "height": 20,
+          "shadow": false
+        },
+        "classes": [
+          "promo"
+        ]
+      },
+      "rect": {
+        "x": 140.046875,
+        "y": 182,
+        "width": 45.671875,
+        "height": 20
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(2) > p:nth-of-type(1) > span:nth-of-type(2)",
+      "fixtureKey": "badge-promo"
+    }
+  ]
+}

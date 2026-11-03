@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Acme Ops</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="wrapper">
+  <nav class="topnav" data-ci-key="nav-main">
+    <a href="index.html">Dashboard</a>
+    <a href="projects.html">Projects</a>
+    <a href="settings.html">Settings</a>
+    <a href="billing.html">Billing</a>
+  </nav>
+  <main class="page">
+    <h1>Dashboard</h1>
+    <div class="toolbar">
+      <button class="btn btn-primary" data-ci-key="btn-primary">New project</button>
+      <button class="btn btn-secondary" data-ci-key="btn-secondary">Export</button>
+      <button class="ghost ghost-r4" data-ci-key="btn-ghost-r4">Filter</button>
+    </div>
+    <div class="section">
+      <p>Status: <span class="badge" data-ci-key="badge-status">Healthy</span>
+         <span class="promo" data-ci-key="badge-promo">New</span></p>
+      <p>Plain text paragraph that is not a component.</p>
+    </div>
+    <!-- Must be skipped -->
+    <button class="btn btn-primary offscreen" data-ci-key="skip-offscreen">Hidden off screen</button>
+    <button class="btn btn-primary hidden" data-ci-key="skip-display-none">Display none</button>
+    <span class="badge invisible" data-ci-key="skip-invisible">Invisible</span>
+  </main>
+</div>
+</body>
+</html>
