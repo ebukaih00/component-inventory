@@ -123,7 +123,10 @@ export function App() {
       <Shell>
         <div class="empty">
           <p>Open a page of your product, then click the Component Inventory icon in the toolbar.</p>
-          <p class="meta">Only http and https pages can be scanned.</p>
+          <p class="meta">
+            The click lets the extension see which site this tab is on. If this panel is already open, click the
+            icon again while the page is showing. Only http and https pages can be scanned.
+          </p>
         </div>
       </Shell>
     );

@@ -66,4 +66,6 @@ tests/unit       Vitest; tests/snapshots are real-browser candidate dumps; tests
 - **Thumbnails need `activeTab`.** `captureVisibleTab` refuses with host permissions alone. Opening the
   panel from the toolbar icon (or Alt+Shift+S) grants it for that tab; elsewhere the panel shows a hint.
   The e2e build alone adds `<all_urls>` because Playwright can't click the toolbar.
+- **The toolbar click is handled in `action.onClicked`**, not `openPanelOnActionClick`: that behaviour
+  doesn't grant `activeTab`, so the panel couldn't read the tab's URL. The handler opens the panel itself.
 - Thumbnails are PNG because Figma's `createImage` takes PNG/JPEG/GIF only.

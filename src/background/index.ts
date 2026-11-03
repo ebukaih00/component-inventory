@@ -18,10 +18,20 @@ function broadcast(msg: Broadcast) {
 /* ---------- side panel ---------- */
 
 // Clicking the toolbar icon opens the panel. The click also grants activeTab for the page.
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => undefined);
+// We open the panel ourselves instead of using openPanelOnActionClick: with that behaviour Chrome
+// does not fire action.onClicked, and the click does not grant activeTab, so the panel cannot read
+// the tab's URL. Handling the click here grants activeTab for the tab, then opens the panel.
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => undefined);
 
-chrome.commands?.onCommand.addListener(async (command, tab) => {
-  if (command === 'scan-page' && tab?.id) await scanTab(tab.id).catch(() => undefined);
+chrome.action.onClicked.addListener((tab) => {
+  // sidePanel.open must run inside the click's user gesture: call it before any await.
+  if (tab.windowId !== undefined) chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => undefined);
+});
+
+chrome.commands?.onCommand.addListener((command, tab) => {
+  if (command !== 'scan-page' || !tab?.id) return;
+  if (tab.windowId !== undefined) chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => undefined);
+  void scanTab(tab.id).catch(() => undefined);
 });
 
 /* ---------- record mode ---------- */
