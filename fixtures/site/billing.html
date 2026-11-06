@@ -13,6 +13,7 @@
     <a href="projects.html">Projects</a>
     <a href="settings.html">Settings</a>
     <a href="billing.html">Billing</a>
+    <a href="team.html">Team</a>
   </nav>
   <main class="page">
     <h1>Billing</h1>
@@ -34,6 +35,13 @@
         <tr><td>INV-003</td><td>1 Aug</td><td>£95</td></tr>
       </tbody>
     </table>
+    <!-- Plan cards: same box, different contents. The highlighted one adds a line and a darker border
+         (like a "Most popular" pricing card). All three are cards; Starter and Business are one variant. -->
+    <div class="plans">
+      <div class="plan" data-ci-key="card-plan"><h3>Starter</h3><p>£0 per month</p><ul><li>3 projects</li><li>Email support</li></ul></div>
+      <div class="plan plan-popular" data-ci-key="card-plan-popular"><p class="plan-flag">Most popular</p><h3>Team</h3><p>£12 per month</p><ul><li>Unlimited projects</li><li>Priority support</li><li>SSO</li></ul></div>
+      <div class="plan" data-ci-key="card-plan"><h3>Business</h3><p>£40 per month</p><ul><li>Everything in Team</li><li>Audit log</li></ul></div>
+    </div>
   </main>
 </div>
 </body>

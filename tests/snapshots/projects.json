@@ -23,7 +23,8 @@
           "background": "#14213dff",
           "color": "#222222ff",
           "height": 56,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "topnav"
@@ -59,7 +60,8 @@
           "background": "#2563ebff",
           "color": "#ffffffff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "btn",
@@ -96,7 +98,8 @@
           "background": "#ffffffff",
           "color": "#222222ff",
           "height": 104,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "project"
@@ -132,7 +135,8 @@
           "background": "#dcfce7ff",
           "color": "#166534ff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "badge"
@@ -168,7 +172,8 @@
           "background": "#ffffffff",
           "color": "#222222ff",
           "height": 104,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "project"
@@ -204,7 +209,8 @@
           "background": "#dcfce7ff",
           "color": "#166534ff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "badge"
@@ -240,7 +246,8 @@
           "background": "#ffffffff",
           "color": "#222222ff",
           "height": 104,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "project"
@@ -276,7 +283,8 @@
           "background": "#dcfce7ff",
           "color": "#166534ff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "badge"
@@ -312,7 +320,8 @@
           "background": "#ffffffff",
           "color": "#222222ff",
           "height": 104,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "project"
@@ -348,7 +357,8 @@
           "background": "#dcfce7ff",
           "color": "#166534ff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "badge"

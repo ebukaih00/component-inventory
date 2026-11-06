@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Live app · Acme Ops</title>
+<!--
+  E2E only (not in the answer key): a single-page app whose DOM never goes quiet,
+  like a page with a ticker, a video player or a carousel. Links switch views with
+  history.pushState, without a page load. Record mode must still scan each view.
+-->
+<style>
+  body { font: 14px Arial, sans-serif; margin: 24px; }
+  .ticker { display: inline-block; width: 8px; height: 8px; border-radius: 4px; background: #16a34a; }
+  .btn { height: 36px; padding: 8px 16px; border-radius: 6px; border: 0; background: #2563eb; color: #fff; }
+  .alt { height: 32px; padding: 6px 12px; border-radius: 2px; border: 1px solid #111; background: #fff; }
+</style>
+</head>
+<body>
+<p><span class="ticker" id="ticker"></span> Live</p>
+<p><a href="/a" data-view="a">View A</a> · <a href="/b" data-view="b">View B</a></p>
+<main id="view"><button class="btn">Start</button></main>
+<script>
+  // Never quiet: a style change every 200 ms.
+  let on = true;
+  setInterval(() => { on = !on; document.getElementById('ticker').style.opacity = on ? '1' : '0.4'; }, 200);
+  const views = {
+    a: '<button class="btn">Start</button>',
+    b: '<button class="alt">Export</button><button class="alt">Share</button>',
+  };
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-view]');
+    if (!a) return;
+    e.preventDefault();
+    history.pushState(null, '', a.getAttribute('href'));
+    document.getElementById('view').innerHTML = views[a.dataset.view];
+  });
+</script>
+</body>
+</html>

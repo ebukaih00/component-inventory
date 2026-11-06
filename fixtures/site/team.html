@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team · Acme Ops</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="wrapper">
+  <nav class="topnav" data-ci-key="nav-main">
+    <a href="index.html">Dashboard</a>
+    <a href="projects.html">Projects</a>
+    <a href="settings.html">Settings</a>
+    <a href="billing.html">Billing</a>
+    <a href="team.html">Team</a>
+  </nav>
+  <main class="page">
+    <nav class="crumbs" aria-label="Breadcrumb" data-ci-key="breadcrumb">
+      <ol><li><a href="index.html">Dashboard</a></li><li>Team</li></ol>
+    </nav>
+    <h1>Team</h1>
+
+    <!-- Alerts: two of the same info banner (reused), one error (one-off) -->
+    <div class="alert alert-info" role="status" data-ci-key="alert-info">3 invites are waiting for a reply.</div>
+    <div class="alert alert-info" role="status" data-ci-key="alert-info">Billing moves to the new plan on 1 December.</div>
+    <div class="alert alert-error" role="alert" data-ci-key="alert-error">One seat could not be renewed.</div>
+
+    <!-- Avatars (photo, reused) and icons: 16px reused, one 20px near-duplicate -->
+    <ul class="people">
+      <li><img class="face" src="avatar.svg" alt="" data-ci-key="avatar-photo"> Ana Ruiz <svg class="ico" width="16" height="16" viewBox="0 0 16 16" data-ci-key="icon-16"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></li>
+      <li><img class="face" src="avatar.svg" alt="" data-ci-key="avatar-photo"> Kemi Obi <svg class="ico" width="16" height="16" viewBox="0 0 16 16" data-ci-key="icon-16"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></li>
+      <li><img class="face" src="avatar.svg" alt="" data-ci-key="avatar-photo"> Sam Lee <svg class="ico" width="16" height="16" viewBox="0 0 16 16" data-ci-key="icon-16"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></li>
+      <li><span class="initials" data-ci-key="avatar-initials">JD</span> Jo Dean <svg class="ico ico-lg" width="20" height="20" viewBox="0 0 16 16" data-ci-key="icon-20"><circle cx="8" cy="8" r="6" fill="currentColor"/></svg></li>
+    </ul>
+
+    <!-- Text links: three of the same, one muted one-off -->
+    <p>Read the <a class="text-link" href="#roles" data-ci-key="link-body">roles guide</a>, check the
+      <a class="text-link" href="#audit" data-ci-key="link-body">audit log</a> or set up
+      <a class="text-link" href="#sso" data-ci-key="link-body">single sign-on</a>.</p>
+    <p class="fine">Questions? <a class="muted-link" href="#support" data-ci-key="link-muted">Contact support</a></p>
+
+    <!-- Progress: two seat meters (reused) -->
+    <div class="meter" role="progressbar" aria-valuenow="60" data-ci-key="progress-seats"><span style="width: 60%"></span></div>
+    <div class="meter" role="progressbar" aria-valuenow="30" data-ci-key="progress-seats"><span style="width: 30%"></span></div>
+
+    <!-- An open row menu -->
+    <div class="row-menu" role="menu" data-ci-key="menu-row">
+      <button type="button" role="menuitem">Edit role</button>
+      <button type="button" role="menuitem">Remove</button>
+    </div>
+
+    <nav class="pager" aria-label="Pagination" data-ci-key="pagination">
+      <a href="#p1" aria-current="page">1</a> <a href="#p2">2</a> <a href="#p3">3</a>
+    </nav>
+
+    <!-- An open dialog -->
+    <dialog open class="modal" data-ci-key="dialog-invite">
+      <h2>Invite a teammate</h2>
+      <p>They get an email with a link to join.</p>
+      <button type="button" class="btn btn-primary" data-ci-key="btn-primary">Send invite</button>
+    </dialog>
+  </main>
+</div>
+</body>
+</html>

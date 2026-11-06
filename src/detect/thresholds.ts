@@ -14,6 +14,11 @@ export interface Thresholds {
   /** Minimum share of structure tokens in common for container kinds (0–1). */
   structure: number;
   maxDiffs: number;
+  /**
+   * Find similar (the board): least structure similarity for a container to count as the same
+   * component as a collected one. Lower than `structure` because cards differ in content.
+   */
+  findStructure: number;
 }
 
 export const DEFAULT_THRESHOLDS: Thresholds = {
@@ -26,4 +31,5 @@ export const DEFAULT_THRESHOLDS: Thresholds = {
   color: 8,
   structure: 0.75,
   maxDiffs: 3,
+  findStructure: 0.6,
 };

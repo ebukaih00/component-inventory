@@ -2,6 +2,10 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import {
   buildExport,
+  groupId as makeGroupId,
+  type Capture,
+  type CollectionState,
+  type Group,
   inventoryIdForDomain,
   mergeScan,
   newInventory,
@@ -10,6 +14,7 @@ import {
   type InventoryExport,
   type InventoryState,
   type Page,
+  type PickRule,
   type PageScan,
   type ScanResult,
   type Variant,
@@ -26,19 +31,30 @@ interface InventoryDB extends DBSchema {
   pages: { key: string; value: Page; indexes: { inventoryId: string } };
   variants: { key: string; value: StoredVariant; indexes: { inventoryId: string } };
   instances: { key: string; value: Instance; indexes: { inventoryId: string; pageId: string } };
+  groups: { key: string; value: Group; indexes: { inventoryId: string } };
+  captures: { key: string; value: Capture; indexes: { inventoryId: string; groupId: string } };
 }
 
 let dbPromise: Promise<IDBPDatabase<InventoryDB>> | null = null;
 
 export function db(): Promise<IDBPDatabase<InventoryDB>> {
-  dbPromise ??= openDB<InventoryDB>('component-inventory', 1, {
-    upgrade(d) {
-      d.createObjectStore('inventories', { keyPath: 'id' });
-      d.createObjectStore('pages', { keyPath: 'id' }).createIndex('inventoryId', 'inventoryId');
-      d.createObjectStore('variants', { keyPath: 'id' }).createIndex('inventoryId', 'inventoryId');
-      const inst = d.createObjectStore('instances', { keyPath: 'id' });
-      inst.createIndex('inventoryId', 'inventoryId');
-      inst.createIndex('pageId', 'pageId');
+  dbPromise ??= openDB<InventoryDB>('component-inventory', 2, {
+    upgrade(d, oldVersion) {
+      if (oldVersion < 1) {
+        d.createObjectStore('inventories', { keyPath: 'id' });
+        d.createObjectStore('pages', { keyPath: 'id' }).createIndex('inventoryId', 'inventoryId');
+        d.createObjectStore('variants', { keyPath: 'id' }).createIndex('inventoryId', 'inventoryId');
+        const inst = d.createObjectStore('instances', { keyPath: 'id' });
+        inst.createIndex('inventoryId', 'inventoryId');
+        inst.createIndex('pageId', 'pageId');
+      }
+      if (oldVersion < 2) {
+        // The board: groups the user makes, and the components they collect into them.
+        d.createObjectStore('groups', { keyPath: 'id' }).createIndex('inventoryId', 'inventoryId');
+        const cap = d.createObjectStore('captures', { keyPath: 'id' });
+        cap.createIndex('inventoryId', 'inventoryId');
+        cap.createIndex('groupId', 'groupId');
+      }
     },
   });
   return dbPromise;
@@ -71,6 +87,18 @@ export async function setRecording(domain: string, recording: boolean): Promise<
   const next = { ...inv, recording };
   await (await db()).put('inventories', next);
   return next;
+}
+
+/** Add a hand-picked rule (replacing one with the same id). */
+export async function addRule(domain: string, rule: PickRule): Promise<Inventory> {
+  const inv = await ensureInventory(domain);
+  const next = { ...inv, rules: [...(inv.rules ?? []).filter((r) => r.id !== rule.id), rule] };
+  await (await db()).put('inventories', next);
+  return next;
+}
+
+export async function getRules(domain: string): Promise<PickRule[]> {
+  return (await getInventory(domain))?.rules ?? [];
 }
 
 export async function loadState(inventoryId: string): Promise<InventoryState | null> {
@@ -175,9 +203,9 @@ export function setIgnored(ids: string[], ignored: boolean) {
 
 export async function deleteInventory(inventoryId: string) {
   const d = await db();
-  const tx = d.transaction(['inventories', 'pages', 'variants', 'instances'], 'readwrite');
+  const tx = d.transaction(['inventories', 'pages', 'variants', 'instances', 'groups', 'captures'], 'readwrite');
   await tx.objectStore('inventories').delete(inventoryId);
-  for (const store of ['pages', 'variants', 'instances'] as const) {
+  for (const store of ['pages', 'variants', 'instances', 'groups', 'captures'] as const) {
     const keys = await tx.objectStore(store).index('inventoryId').getAllKeys(inventoryId);
     for (const k of keys) await tx.objectStore(store).delete(k);
   }
@@ -187,4 +215,106 @@ export async function deleteInventory(inventoryId: string) {
 export async function exportInventory(inventoryId: string): Promise<InventoryExport | null> {
   const state = await loadState(inventoryId);
   return state ? buildExport(state) : null;
+}
+
+/* ---------- the board: groups and collected components ---------- */
+
+export async function loadCollection(inventoryId: string): Promise<CollectionState | null> {
+  const d = await db();
+  const inventory = await d.get('inventories', inventoryId);
+  if (!inventory) return null;
+  const [groups, captures] = await Promise.all([
+    d.getAllFromIndex('groups', 'inventoryId', inventoryId),
+    d.getAllFromIndex('captures', 'inventoryId', inventoryId),
+  ]);
+  return { inventory, groups, captures };
+}
+
+/** Where Collect puts new components: a group id, or null for Unsorted. */
+export async function setCollectInto(domain: string, groupId: string | null): Promise<void> {
+  const inv = await ensureInventory(domain);
+  await (await db()).put('inventories', { ...inv, collectInto: groupId });
+}
+
+export async function createGroup(domain: string, name: string, now = Date.now()): Promise<Group> {
+  const inv = await ensureInventory(domain);
+  const group: Group = { id: makeGroupId(inv.id, name, now), inventoryId: inv.id, name: name.trim() || 'Untitled group', createdAt: now, usage: {} };
+  await (await db()).put('groups', group);
+  return group;
+}
+
+export async function getGroup(id: string): Promise<Group | undefined> {
+  return (await db()).get('groups', id);
+}
+
+export async function renameGroup(id: string, name: string) {
+  const d = await db();
+  const g = await d.get('groups', id);
+  if (g && name.trim()) await d.put('groups', { ...g, name: name.trim() });
+}
+
+export async function setGroupUsage(id: string, route: string, count: number) {
+  const d = await db();
+  const g = await d.get('groups', id);
+  if (g) await d.put('groups', { ...g, usage: { ...g.usage, [route]: count } });
+}
+
+/** Deleting a group keeps what was in it: its components go back to Unsorted. */
+export async function deleteGroup(id: string) {
+  const d = await db();
+  const tx = d.transaction(['groups', 'captures', 'inventories'], 'readwrite');
+  const g = await tx.objectStore('groups').get(id);
+  await tx.objectStore('groups').delete(id);
+  for (const c of await tx.objectStore('captures').index('groupId').getAll(id)) {
+    await tx.objectStore('captures').put({ ...c, groupId: null });
+  }
+  if (g) {
+    const inv = await tx.objectStore('inventories').get(g.inventoryId);
+    if (inv?.collectInto === id) await tx.objectStore('inventories').put({ ...inv, collectInto: null });
+  }
+  await tx.done;
+}
+
+/** Adds a capture, or updates the same element collected again (keeping its first date). */
+export async function putCapture(c: Capture): Promise<{ added: boolean }> {
+  const d = await db();
+  const tx = d.transaction('captures', 'readwrite');
+  const old = await tx.store.get(c.id);
+  await tx.store.put(old ? { ...c, createdAt: old.createdAt, thumbnail: c.thumbnail ?? old.thumbnail } : c);
+  await tx.done;
+  return { added: !old };
+}
+
+export async function moveCaptures(ids: string[], groupId: string | null) {
+  const d = await db();
+  const tx = d.transaction('captures', 'readwrite');
+  for (const id of ids) {
+    const c = await tx.store.get(id);
+    if (c) await tx.store.put({ ...c, groupId });
+  }
+  await tx.done;
+}
+
+export async function deleteCaptures(ids: string[]) {
+  const d = await db();
+  const tx = d.transaction('captures', 'readwrite');
+  for (const id of ids) await tx.store.delete(id);
+  await tx.done;
+}
+
+export async function groupCaptures(groupId: string): Promise<Capture[]> {
+  return (await db()).getAllFromIndex('captures', 'groupId', groupId);
+}
+
+/** Clears the board (groups and collected components); Auto-detect's data stays. */
+export async function deleteBoard(inventoryId: string) {
+  const d = await db();
+  const tx = d.transaction(['inventories', 'groups', 'captures'], 'readwrite');
+  for (const store of ['groups', 'captures'] as const) {
+    const keys = await tx.objectStore(store).index('inventoryId').getAllKeys(inventoryId);
+    for (const k of keys) await tx.objectStore(store).delete(k);
+  }
+  const inv = await tx.objectStore('inventories').get(inventoryId);
+  if (inv) await tx.objectStore('inventories').put({ ...inv, collectInto: null });
+  await tx.done;
 }

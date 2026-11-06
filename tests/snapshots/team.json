@@ -1,0 +1,862 @@
+{
+  "url": "http://fixture.test/team.html",
+  "title": "Team · Acme Ops",
+  "candidates": [
+    {
+      "localId": 0,
+      "kind": "nav",
+      "subkind": "nav",
+      "fingerprint": {
+        "structure": "nav(a+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 32,
+          "paddingBottom": 0,
+          "paddingLeft": 32,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#14213dff",
+          "color": "#222222ff",
+          "height": 56,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "topnav"
+        ]
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 56
+      },
+      "selectorPath": "body > div > nav",
+      "fixtureKey": "nav-main"
+    },
+    {
+      "localId": 1,
+      "kind": "nav",
+      "subkind": "breadcrumb",
+      "fingerprint": {
+        "structure": "nav(ol(li(a),li))",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 15,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "crumbs"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 80,
+        "width": 1216,
+        "height": 15
+      },
+      "selectorPath": "body > div > main > nav:nth-of-type(1)",
+      "fixtureKey": "breadcrumb"
+    },
+    {
+      "localId": 2,
+      "kind": "alert",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 10,
+          "paddingRight": 14,
+          "paddingBottom": 10,
+          "paddingLeft": 14,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#bfdbfeff",
+          "background": "#eff6ffff",
+          "color": "#1e3a8aff",
+          "height": 38,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "alert",
+          "alert-info"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 145,
+        "width": 560,
+        "height": 38
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(1)",
+      "fixtureKey": "alert-info"
+    },
+    {
+      "localId": 3,
+      "kind": "alert",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 10,
+          "paddingRight": 14,
+          "paddingBottom": 10,
+          "paddingLeft": 14,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#bfdbfeff",
+          "background": "#eff6ffff",
+          "color": "#1e3a8aff",
+          "height": 38,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "alert",
+          "alert-info"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 191,
+        "width": 560,
+        "height": 38
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(2)",
+      "fixtureKey": "alert-info"
+    },
+    {
+      "localId": 4,
+      "kind": "alert",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 10,
+          "paddingRight": 14,
+          "paddingBottom": 10,
+          "paddingLeft": 14,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#fca5a5ff",
+          "background": "#fef2f2ff",
+          "color": "#7f1d1dff",
+          "height": 38,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "alert",
+          "alert-error"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 237,
+        "width": 560,
+        "height": 38
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(3)",
+      "fixtureKey": "alert-error"
+    },
+    {
+      "localId": 5,
+      "kind": "avatar",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "img",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 16,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 32,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "face"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 297,
+        "width": 32,
+        "height": 32
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(1) > img",
+      "fixtureKey": "avatar-photo"
+    },
+    {
+      "localId": 6,
+      "kind": "icon",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "svg",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#64748bff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "ico"
+        ]
+      },
+      "rect": {
+        "x": 140.8125,
+        "y": 305,
+        "width": 16,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(1) > svg",
+      "fixtureKey": "icon-16"
+    },
+    {
+      "localId": 7,
+      "kind": "avatar",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "img",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 16,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 32,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "face"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 341,
+        "width": 32,
+        "height": 32
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(2) > img",
+      "fixtureKey": "avatar-photo"
+    },
+    {
+      "localId": 8,
+      "kind": "icon",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "svg",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#64748bff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "ico"
+        ]
+      },
+      "rect": {
+        "x": 141.578125,
+        "y": 349,
+        "width": 16,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(2) > svg",
+      "fixtureKey": "icon-16"
+    },
+    {
+      "localId": 9,
+      "kind": "avatar",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "img",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 16,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 32,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "face"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 385,
+        "width": 32,
+        "height": 32
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(3) > img",
+      "fixtureKey": "avatar-photo"
+    },
+    {
+      "localId": 10,
+      "kind": "icon",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "svg",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#64748bff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "ico"
+        ]
+      },
+      "rect": {
+        "x": 140.046875,
+        "y": 393,
+        "width": 16,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(3) > svg",
+      "fixtureKey": "icon-16"
+    },
+    {
+      "localId": 11,
+      "kind": "avatar",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "span",
+        "style": {
+          "fontFamily": "Arial, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 600,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 20,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#fde68aff",
+          "color": "#92400eff",
+          "height": 40,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "initials"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 425,
+        "width": 40,
+        "height": 40
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(4) > span",
+      "fixtureKey": "avatar-initials"
+    },
+    {
+      "localId": 12,
+      "kind": "icon",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "svg",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#64748bff",
+          "height": 20,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "ico",
+          "ico-lg"
+        ]
+      },
+      "rect": {
+        "x": 144.15625,
+        "y": 435,
+        "width": 20,
+        "height": 20
+      },
+      "selectorPath": "body > div > main > ul > li:nth-of-type(4) > svg",
+      "fixtureKey": "icon-20"
+    },
+    {
+      "localId": 13,
+      "kind": "link",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "a",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#2563ebff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "underline"
+        },
+        "classes": [
+          "text-link"
+        ]
+      },
+      "rect": {
+        "x": 92.71875,
+        "y": 483,
+        "width": 68.5,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > p:nth-of-type(1) > a:nth-of-type(1)",
+      "fixtureKey": "link-body"
+    },
+    {
+      "localId": 14,
+      "kind": "link",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "a",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#2563ebff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "underline"
+        },
+        "classes": [
+          "text-link"
+        ]
+      },
+      "rect": {
+        "x": 232.8125,
+        "y": 483,
+        "width": 52.9375,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > p:nth-of-type(1) > a:nth-of-type(2)",
+      "fixtureKey": "link-body"
+    },
+    {
+      "localId": 15,
+      "kind": "link",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "a",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#2563ebff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "underline"
+        },
+        "classes": [
+          "text-link"
+        ]
+      },
+      "rect": {
+        "x": 348.015625,
+        "y": 483,
+        "width": 86.390625,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > p:nth-of-type(1) > a:nth-of-type(3)",
+      "fixtureKey": "link-body"
+    },
+    {
+      "localId": 16,
+      "kind": "link",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "a",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 13,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#6b7280ff",
+          "height": 15,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "muted-link"
+        ]
+      },
+      "rect": {
+        "x": 101.375,
+        "y": 513,
+        "width": 91.78125,
+        "height": 15
+      },
+      "selectorPath": "body > div > main > p:nth-of-type(2) > a",
+      "fixtureKey": "link-muted"
+    },
+    {
+      "localId": 17,
+      "kind": "progress",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(span)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 4,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#e5e7ebff",
+          "color": "#222222ff",
+          "height": 8,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "meter"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 541,
+        "width": 240,
+        "height": 8
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(4)",
+      "fixtureKey": "progress-seats"
+    },
+    {
+      "localId": 18,
+      "kind": "progress",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(span)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 4,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#e5e7ebff",
+          "color": "#222222ff",
+          "height": 8,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "meter"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 557,
+        "width": 240,
+        "height": 8
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(5)",
+      "fixtureKey": "progress-seats"
+    },
+    {
+      "localId": 19,
+      "kind": "menu",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(button+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 4,
+          "paddingRight": 4,
+          "paddingBottom": 4,
+          "paddingLeft": 4,
+          "radius": 6,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#e5e7ebff",
+          "background": "#ffffffff",
+          "color": "#222222ff",
+          "height": 66,
+          "shadow": true,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "row-menu"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 581,
+        "width": 160,
+        "height": 66
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(6)",
+      "fixtureKey": "menu-row"
+    },
+    {
+      "localId": 20,
+      "kind": "nav",
+      "subkind": "pagination",
+      "fingerprint": {
+        "structure": "nav(a+)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "radius": 0,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#00000000",
+          "color": "#222222ff",
+          "height": 16,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "pager"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 663,
+        "width": 1216,
+        "height": 16
+      },
+      "selectorPath": "body > div > main > nav:nth-of-type(2)",
+      "fixtureKey": "pagination"
+    },
+    {
+      "localId": 21,
+      "kind": "dialog",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "dialog(h2,p,button)",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 20,
+          "paddingRight": 20,
+          "paddingBottom": 20,
+          "paddingLeft": 20,
+          "radius": 8,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#e5e7ebff",
+          "background": "#ffffffff",
+          "color": "#000000ff",
+          "height": 143,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "modal"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 703,
+        "width": 360,
+        "height": 143
+      },
+      "selectorPath": "body > div > main > dialog",
+      "fixtureKey": "dialog-invite"
+    },
+    {
+      "localId": 22,
+      "kind": "button",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "button",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 500,
+          "paddingTop": 8,
+          "paddingRight": 16,
+          "paddingBottom": 8,
+          "paddingLeft": 16,
+          "radius": 6,
+          "borderWidth": 0,
+          "borderStyle": "none",
+          "borderColor": "#00000000",
+          "background": "#2563ebff",
+          "color": "#ffffffff",
+          "height": 36,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "btn",
+          "btn-primary"
+        ]
+      },
+      "rect": {
+        "x": 53,
+        "y": 789,
+        "width": 103.28125,
+        "height": 36
+      },
+      "selectorPath": "body > div > main > dialog > button",
+      "fixtureKey": "btn-primary"
+    }
+  ]
+}

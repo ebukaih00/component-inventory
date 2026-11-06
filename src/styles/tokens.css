@@ -1,6 +1,6 @@
 /*
  * Design tokens — the ONLY colours, sizes and radii the UI may use.
- * See DESIGN.md. The Figma plugin mirrors these values in figma-plugin/src/tokens.ts.
+ * See DESIGN.md.
  */
 :root {
   /* 8 neutral greys (0 = page, 7 = strongest text) */
@@ -51,6 +51,10 @@
   --radius-tile: 6px;
   --border: 1px solid var(--grey-3);
   --shadow-menu: 0 4px 12px rgba(31, 31, 29, 0.12);
+
+  /* Stacking: the only z-index values the UI may use */
+  --z-sticky: 10; /* header, footer */
+  --z-overlay: 20; /* menu, toast (inside the footer) */
 
   /* Thumbnails */
   --thumb-height: 48px;

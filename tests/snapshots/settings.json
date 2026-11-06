@@ -23,7 +23,8 @@
           "background": "#14213dff",
           "color": "#222222ff",
           "height": 56,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "topnav"
@@ -59,7 +60,8 @@
           "background": "#00000000",
           "color": "#222222ff",
           "height": 35,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "tabs"
@@ -95,7 +97,8 @@
           "background": "#ffffffff",
           "color": "#111111ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "text-input"
@@ -131,7 +134,8 @@
           "background": "#ffffffff",
           "color": "#111111ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "text-input"
@@ -167,7 +171,8 @@
           "background": "#f8fafcff",
           "color": "#000000ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "select"
@@ -203,7 +208,8 @@
           "background": "#00000000",
           "color": "#000000ff",
           "height": 16,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "check"
@@ -239,7 +245,8 @@
           "background": "#16a34aff",
           "color": "#000000ff",
           "height": 22,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "switch"
@@ -275,7 +282,8 @@
           "background": "#2563ebff",
           "color": "#ffffffff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "btn",
@@ -312,7 +320,8 @@
           "background": "#ffffffff",
           "color": "#111111ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "btn",
@@ -349,7 +358,8 @@
           "background": "#00000000",
           "color": "#2563ebff",
           "height": 32,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "ghost",
@@ -386,7 +396,8 @@
           "background": "#b91c1cff",
           "color": "#ffffffff",
           "height": 40,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "danger-zone-btn"
@@ -395,7 +406,7 @@
       "rect": {
         "x": 32,
         "y": 528,
-        "width": 133.71875,
+        "width": 154.046875,
         "height": 40
       },
       "selectorPath": "body > div > main > div:nth-of-type(2) > button",

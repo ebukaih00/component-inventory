@@ -45,12 +45,13 @@ export function normalizeStyle(s: StyleProps): StyleProps {
     color: s.color.toLowerCase(),
     height: round(s.height),
     shadow: s.shadow,
+    textDecoration: s.textDecoration?.includes('underline') ? 'underline' : 'none',
   };
 }
 
 /** Kinds whose height is part of their identity. Containers grow with their content. */
 export function heightMatters(kind: Kind): boolean {
-  return kind === 'button' || kind === 'input' || kind === 'badge';
+  return kind === 'button' || kind === 'input' || kind === 'badge' || kind === 'icon' || kind === 'avatar' || kind === 'progress';
 }
 
 /** Candidates whose keys are equal are the same variant. */
@@ -63,7 +64,9 @@ export function variantKey(kind: Kind, subkind: Subkind, fp: Fingerprint): strin
     s.background, s.color, heightMatters(kind) ? s.height : '-', s.shadow ? 1 : 0,
   ].join('|');
   const structure = CONTAINER_KINDS.has(kind) ? fp.structure : '-';
-  return `${kind}|${subkind ?? '-'}|${style}|${structure}`;
+  // Underline only defines links; other kinds' keys (and stored variant ids) stay as they were.
+  const decoration = kind === 'link' ? `|${s.textDecoration}` : '';
+  return `${kind}|${subkind ?? '-'}|${style}|${structure}${decoration}`;
 }
 
 export function variantId(inventoryId: string, key: string): string {
@@ -88,7 +91,7 @@ export function styleSummary(style: StyleProps): StyleSummary {
   return {
     font: `${s.fontFamily} ${s.fontSize}/${s.fontWeight}`,
     padding: paddingString(s),
-    radius: px(s.radius),
+    radius: s.radius >= 1000 ? 'full' : px(s.radius), // 9999px pills stored before radii were capped
     background: displayColor(s.background),
     color: displayColor(s.color),
     border: borderString(s),

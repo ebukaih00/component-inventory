@@ -1,8 +1,10 @@
 /** Crops element thumbnails out of a visible-tab screenshot, in the service worker. */
 import type { Crop } from '../shared/messages';
 
-const MAX_W = 640;
-const MAX_H = 96; // 2× the 48px thumbnail height
+/** Auto-detect thumbnails: 2× the panel's 48px tile. */
+export const THUMB_MAX = { w: 640, h: 96 };
+/** Board previews are shown larger, and cards need to stay readable. */
+export const BOARD_MAX = { w: 960, h: 640 };
 
 async function blobToDataUrl(blob: Blob): Promise<string> {
   const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -11,7 +13,7 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
   return `data:${blob.type};base64,${btoa(bin)}`;
 }
 
-export async function cropScreenshot(screenshot: string, crops: Crop[], dpr: number): Promise<{ crop: Crop; dataUrl: string }[]> {
+export async function cropScreenshot(screenshot: string, crops: Crop[], dpr: number, max = THUMB_MAX): Promise<{ crop: Crop; dataUrl: string }[]> {
   const bitmap = await createImageBitmap(await (await fetch(screenshot)).blob());
   const out: { crop: Crop; dataUrl: string }[] = [];
   for (const crop of crops) {
@@ -20,7 +22,7 @@ export async function cropScreenshot(screenshot: string, crops: Crop[], dpr: num
     const sw = Math.min(bitmap.width - sx, Math.ceil(crop.rect.width * dpr));
     const sh = Math.min(bitmap.height - sy, Math.ceil(crop.rect.height * dpr));
     if (sw < 2 || sh < 2) continue;
-    const scale = Math.min(1, MAX_W / sw, MAX_H / sh);
+    const scale = Math.min(1, max.w / sw, max.h / sh);
     const w = Math.max(1, Math.round(sw * scale));
     const h = Math.max(1, Math.round(sh * scale));
     const canvas = new OffscreenCanvas(w, h);

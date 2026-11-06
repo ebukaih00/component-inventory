@@ -23,7 +23,8 @@
           "background": "#14213dff",
           "color": "#222222ff",
           "height": 56,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "topnav"
@@ -59,7 +60,8 @@
           "background": "#2563ebff",
           "color": "#ffffffff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "btn",
@@ -96,7 +98,8 @@
           "background": "#ffffffff",
           "color": "#111111ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "btn",
@@ -133,7 +136,8 @@
           "background": "#00000000",
           "color": "#2563ebff",
           "height": 32,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "ghost",
@@ -170,7 +174,8 @@
           "background": "#dcfce7ff",
           "color": "#166534ff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "badge"
@@ -206,7 +211,8 @@
           "background": "#7c3aedff",
           "color": "#ffffffff",
           "height": 20,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "promo"

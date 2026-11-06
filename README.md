@@ -2,17 +2,25 @@
 
 > Find every version of every component in your product, and see which ones should be the same.
 
-A Chrome extension that inventories your product's UI while you browse it. It sorts every button,
-input, badge, card, table and tab/nav it finds into three buckets:
+A Chrome extension for auditing your product's UI while you browse it. Two ways to work:
 
-| Bucket | Rule |
-| --- | --- |
-| **Common** | The same variant appears on 2 or more screens |
-| **Could be one** | Near-duplicates (for example radius 4 · 6 · 8), or a pattern repeated on one screen only |
-| **One-off** | Appears once; shows the closest existing component |
+- **Board** (default): click the components you see to collect them, and sort them into groups, like
+  screenshots on a Figma board but without the screenshots. For each group, **Find on this page** counts where
+  it's used and collects the versions that look different, and the group shows what differs ("radius 4 · 8").
+- **Auto-detect**: the extension scans pages itself. It finds buttons, links, inputs,
+badges, icons, avatars, cards, alerts and banners, tables, navigation (including tabs, breadcrumbs and
+pagination), menus, dialogs and progress bars, and sorts every version into three buckets:
 
-Review in the side panel (merge, split, rename, ignore, click to highlight on the page), then export
-to a Figma board with the companion plugin. Everything stays in your browser.
+| Bucket | Rule | What to do |
+| --- | --- | --- |
+| **Reused** | The same variant is used 2 or more times, anywhere | Document it as a component |
+| **Near-duplicates** | Variants that look almost the same (for example radius 4 · 6 · 8) | Merge each group into one component |
+| **One-off** | Used once; shows the closest existing component | Swap it for the closest match, or keep it |
+
+Menus and dialogs are inventoried when they are open on screen during a scan.
+
+Review in the side panel (merge, split, rename, ignore, click to highlight on the page), then save a
+report to share. Everything stays in your browser.
 
 ## Install (development)
 
@@ -20,13 +28,24 @@ to a Figma board with the companion plugin. Everything stays in your browser.
 npm install
 ```
 
-```bash
-npm run build
-```
+`npm install` also builds the extension into `dist/` (the `prepare` script). The project root has no
+`manifest.json`; it is generated from `manifest.config.ts` into `dist/`.
 
-Then open `chrome://extensions`, turn on Developer mode, choose **Load unpacked** and pick `dist/`.
+Open `chrome://extensions`, turn on Developer mode, choose **Load unpacked** and pick `dist/`, not the
+project root. While you work, run `npm run dev` to keep `dist/` up to date, then reload the extension card.
 
-## Use
+## Use the board
+
+1. Open your product and click the toolbar icon. The panel opens on **Board**.
+2. **Collect**, then click components on the page. Each one is screenshotted and lands in **Unsorted** (or the
+   group picked under **Add to**). Clicking a button's text or icon picks the button; ↑ selects the parent.
+   Esc pauses so you can click around; Alt+Shift+C starts and stops collecting.
+3. Make groups (**Add to → New group…**), and drag components into them or use **Move to**.
+4. On any page, **Find on this page** in a group counts the matches there, outlines them, and collects each new
+   version. The group shows versions, uses per screen, and the properties that differ.
+5. **Save report** downloads one self-contained HTML board. **More → Download JSON** gives the raw data.
+
+## Use Auto-detect
 
 1. Open your product and click the **Component Inventory** toolbar icon. The side panel opens.
 2. **Start recording.** Chrome asks for access to that one domain. Browse as usual, including logged-in
@@ -36,20 +55,15 @@ Then open `chrome://extensions`, turn on Developer mode, choose **Load unpacked*
 4. Review: click a row to outline its instances on the page. Double-click a name to rename it. In a
    *Could be one* group, **Keep this** merges the others into that variant, and **Not the same** splits one out.
    **Ignore** hides a row, and you can restore it later.
-5. **Copy for Figma**, then in Figma run the plugin and paste. Or use **Download JSON**.
+5. Missed something? **Add element**, then click it on the page (↑ selects the parent). Say what it is, and
+   whether to find everything that looks like it (same tag and classes, every page) or only that element.
+   It's saved as a rule for the site and applied on every scan.
+6. **Save report** downloads one self-contained HTML file: the summary, the three buckets with thumbnails,
+   and the pages scanned. It opens offline in any browser and prints to PDF. **Download JSON** gives the raw data.
 
-Previews come from screenshots of the visible tab. Chrome only allows these in a tab where you clicked
+Previews come from screenshots of the visible tab. Components taller or wider than the window get a
+preview of their top or left part; **Scan this page** scrolls to anything still missing one. Chrome only allows these in a tab where you clicked
 the toolbar icon or used the shortcut. If previews are missing, the panel tells you.
-
-## Figma plugin
-
-```bash
-npm run build:figma
-```
-
-In Figma: *Plugins → Development → Import plugin from manifest…* → `figma-plugin/manifest.json`.
-The board has one section per bucket, grouped by kind, with a row per variant (thumbnails, uses, screens,
-style summary). The plugin has no network access.
 
 ## Detection spike
 

@@ -1,9 +1,10 @@
 /**
  * The three buckets. Pure function of the stored inventory.
  *
- *   Common      — the same variant appears on 2+ screens (route patterns)
- *   Could be one — near-duplicate variants, or a variant repeated on one screen only
- *   One-off     — appears once; shows the closest existing component
+ *   Reused (common)              — a variant used 2+ times, anywhere
+ *   Near-duplicates (couldBeOne) — variants that look almost the same; merge candidates
+ *   One-off (oneOff)             — used once; shows the closest existing component
+ * Labels and explanations live in labels.ts.
  */
 import { DIFF_PROPS, distance, compare, isNearDuplicate, propValue, type DiffProp } from './distance';
 import { hash } from './hash';
@@ -38,7 +39,7 @@ export interface CouldBeOneGroup {
   id: string;
   kind: Kind;
   subkind: Subkind;
-  reason: 'near-duplicates' | 'repeated-on-one-screen';
+  reason: 'near-duplicates';
   variants: VariantRow[];
   diffs: PropValues[];
   uses: number;
@@ -192,10 +193,8 @@ export function buildReport(state: InventoryState, opts: ReportOptions = {}): Re
     }
     const v = cluster[0];
     const r = row(v);
-    if (r.screens.length >= 2) common.push(r);
-    else if (r.maxPerPage >= 2) {
-      couldBeOne.push({ id: `g_${hash(v.id)}`, kind: v.kind, subkind: v.subkind, reason: 'repeated-on-one-screen', variants: [r], diffs: [], uses: r.uses });
-    } else oneOffVariants.push(v);
+    if (r.uses >= 2) common.push(r);
+    else oneOffVariants.push(v);
   }
 
   // Closest existing component for each one-off: prefer variants that are not one-offs themselves.

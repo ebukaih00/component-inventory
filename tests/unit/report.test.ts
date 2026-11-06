@@ -34,18 +34,28 @@ describe('mergeScan', () => {
 });
 
 describe('buckets', () => {
-  it('Common needs two screens, not two pages of one route', () => {
+  it('Reused means used twice, anywhere; once is a one-off', () => {
     let s = emptyState('app.test');
     s = applyScan(s, scan('https://app.test/projects/1'));
-    s = applyScan(s, scan('https://app.test/projects/2'));
     let r = buildReport(s);
-    expect(r.summary.screens).toBe(1);
     expect(r.common).toHaveLength(0);
-    expect(r.oneOff).toHaveLength(1); // once per page, on one screen
+    expect(r.oneOff).toHaveLength(1);
+    s = applyScan(s, scan('https://app.test/projects/2'));
+    r = buildReport(s);
+    expect(r.summary.screens).toBe(1); // two pages of one route
+    expect(r.common).toHaveLength(1);
+    expect(r.common[0].screens).toEqual(['/projects/:id']);
     s = applyScan(s, scan('https://app.test/settings'));
     r = buildReport(s);
-    expect(r.common).toHaveLength(1);
     expect(r.common[0].screens).toEqual(['/projects/:id', '/settings']);
+  });
+
+  it('a component repeated on one screen is reused, not a near-duplicate', () => {
+    const s = applyScan(emptyState('app.test'), scan('https://app.test/list', [cand(), cand(), cand()]));
+    const r = buildReport(s);
+    expect(r.common).toHaveLength(1);
+    expect(r.common[0].uses).toBe(3);
+    expect(r.couldBeOne).toHaveLength(0);
   });
 
   it('One-off shows the closest component', () => {

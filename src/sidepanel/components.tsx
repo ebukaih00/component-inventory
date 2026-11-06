@@ -1,7 +1,8 @@
 /** Side panel building blocks, per DESIGN.md: list row, bucket header, thumbnail tile, count pill, diff chip, buttons. */
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { kindLabel, type Bucket, type CouldBeOneGroup, type OneOffRow, type VariantRow } from '../detect';
+import { usePersisted } from './useInventory';
+import { BUCKETS, kindLabel, type Bucket, type CouldBeOneGroup, type OneOffRow, type VariantRow } from '../detect';
 
 /* ---------- primitives ---------- */
 
@@ -32,8 +33,12 @@ export function Button(props: {
   );
 }
 
-export function CountPill({ n, title }: { n: number; title?: string }) {
-  return <span class="pill" title={title}>{n}</span>;
+export function Uses({ n }: { n: number }) {
+  return (
+    <span class="uses" title={`${n} ${n === 1 ? 'use' : 'uses'}`}>
+      <b class="num">{n}</b> {n === 1 ? 'use' : 'uses'}
+    </span>
+  );
 }
 
 export function DiffChip({ prop, values }: { prop: string; values: string[] }) {
@@ -52,28 +57,28 @@ export function Thumb({ src, label }: { src?: string; label: string }) {
   );
 }
 
-const BUCKET_LABEL: Record<Bucket, string> = { common: 'Common', couldBeOne: 'Could be one', oneOff: 'One-off' };
-const BUCKET_HINT: Record<Bucket, string> = {
-  common: 'The same variant on 2 or more screens. Document these as system components.',
-  couldBeOne: 'Near-duplicates, or a pattern repeated on one screen. Consolidate into one component.',
-  oneOff: 'Appears once. Replace with the closest match, or keep as bespoke.',
-};
-
 export function BucketDot({ bucket }: { bucket: Bucket }) {
   return <span class={`dot dot-${bucket}`} aria-hidden="true" />;
 }
 
-export function BucketSection(props: { bucket: Bucket; count: number; children: ComponentChildren; empty: string }) {
-  const [open, setOpen] = useState(true);
+/** Collapsible bucket. Open/closed is remembered per site (storageKey), so it survives closing the panel. */
+export function BucketSection(props: { bucket: Bucket; count: number; children: ComponentChildren; empty: string; storageKey: string }) {
+  const [isOpen, setOpen] = usePersisted(props.storageKey, true);
+  const toggle = () => setOpen(!isOpen);
   return (
     <section class="bucket" data-bucket={props.bucket}>
-      <button type="button" class="bucket-header" onClick={() => setOpen(!open)} aria-expanded={open} title={BUCKET_HINT[props.bucket]}>
+      <button type="button" class="bucket-header" onClick={toggle} aria-expanded={isOpen}>
         <BucketDot bucket={props.bucket} />
-        <span class="bucket-name">{BUCKET_LABEL[props.bucket]}</span>
-        <span class={`pill pill-${props.bucket}`}>{props.count}</span>
-        <Chevron open={open} />
+        <span class="bucket-name">{BUCKETS[props.bucket].label}</span>
+        <span class="bucket-count num">{props.count}</span>
+        <Chevron open={isOpen} />
       </button>
-      {open && (props.count === 0 ? <p class="bucket-empty">{props.empty}</p> : <div class="bucket-body">{props.children}</div>)}
+      {isOpen && (
+        <>
+          <p class="bucket-hint">{BUCKETS[props.bucket].hint}</p>
+          {props.count === 0 ? <p class="bucket-empty">{props.empty}</p> : <div class="bucket-body">{props.children}</div>}
+        </>
+      )}
     </section>
   );
 }
@@ -152,12 +157,15 @@ function StyleTable({ row }: { row: VariantRow }) {
   if (row.kind === 'button' || row.kind === 'input' || row.kind === 'badge') entries.push(['Height', s.height]);
   return (
     <dl class="style-table">
-      {entries.map(([k, v]) => (
-        <>
-          <dt>{k}</dt>
-          <dd>{v}</dd>
-        </>
-      ))}
+      {entries.map(([k, v]) => {
+        const hex = v.match(/#[0-9a-f]{6}(?:[0-9a-f]{2})?\b/i)?.[0];
+        return (
+          <>
+            <dt>{k}</dt>
+            <dd>{hex && <span class="swatch" style={{ background: hex }} aria-hidden="true" />}{v}</dd>
+          </>
+        );
+      })}
     </dl>
   );
 }
@@ -224,7 +232,13 @@ export function VariantListRow(props: { row: VariantRow; actions: RowActions; ig
     <div class={`row ${open ? 'row-open' : ''}`} data-variant={row.id}>
       <div class="row-main" role="button" tabIndex={0}
         onClick={() => { setOpen(!open); actions.highlight(row.memberIds); }}
-        onKeyDown={(e) => { if (e.key === 'Enter') { setOpen(!open); actions.highlight(row.memberIds); } }}>
+        aria-expanded={open}
+        onKeyDown={(e) => {
+          if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+          e.preventDefault();
+          setOpen(!open);
+          actions.highlight(row.memberIds);
+        }}>
         <Thumb src={row.thumbnails[0]} label={row.name} />
         <div class="row-text">
           <EditableName row={row} onRename={actions.rename} />
@@ -234,7 +248,7 @@ export function VariantListRow(props: { row: VariantRow; actions: RowActions; ig
           </span>
           {props.extra}
         </div>
-        <CountPill n={row.uses} title={`${row.uses} uses`} />
+        <Uses n={row.uses} />
       </div>
       {open && <Details row={row} actions={actions} ignored={props.ignored} />}
     </div>
@@ -243,32 +257,26 @@ export function VariantListRow(props: { row: VariantRow; actions: RowActions; ig
 
 export function GroupBlock({ group, actions }: { group: CouldBeOneGroup; actions: RowActions }) {
   const ids = group.variants.map((v) => v.id);
-  if (group.reason === 'repeated-on-one-screen') {
-    const row = group.variants[0];
-    return (
-      <VariantListRow
-        row={row}
-        actions={actions}
-        extra={<span class="meta">Repeated {row.maxPerPage}× on one screen</span>}
-      />
-    );
-  }
   return (
     <div class="group" data-group={group.id}>
       <div class="group-head">
-        <span class="meta">{group.variants.length} variants, probably the same {kindLabel(group.kind, group.subkind).toLowerCase()}</span>
-        <CountPill n={group.uses} title={`${group.uses} uses in total`} />
+        <span class="group-title">
+          {group.variants.length} {kindPlural(kindLabel(group.kind, group.subkind))} that look almost the same
+        </span>
+        <Uses n={group.uses} />
       </div>
       <div class="chips">
         {group.diffs.map((d) => <DiffChip key={d.prop} prop={d.prop} values={d.values} />)}
       </div>
       <div class="tiles">
         {group.variants.map((v) => (
-          <div class="tile" key={v.id} data-variant={v.id} onClick={() => actions.highlight(v.memberIds)}>
-            <Thumb src={v.thumbnails[0]} label={v.name} />
+          <div class="tile" key={v.id} data-variant={v.id}>
+            <button type="button" class="thumb-button" onClick={() => actions.highlight(v.memberIds)} aria-label={`Show ${v.name} on the page`}>
+              <Thumb src={v.thumbnails[0]} label={v.name} />
+            </button>
             <EditableName row={v} onRename={actions.rename} />
+            <span class="diff-values">{tileDiffs(v, group)}</span>
             <span class="meta">{v.uses} {v.uses === 1 ? 'use' : 'uses'} · {screensText(v)}</span>
-            <span class="meta diff-values">{tileDiffs(v, group)}</span>
             <div class="tile-actions">
               <Button variant="secondary" onClick={() => actions.merge(v.id, ids)} title={`Merge the others into ${v.name}`} testId="keep-this">Keep this</Button>
               <Button variant="quiet" onClick={() => actions.split(v.id, ids)} title="Not the same: take it out of this group">Not the same</Button>
@@ -278,6 +286,12 @@ export function GroupBlock({ group, actions }: { group: CouldBeOneGroup; actions
       </div>
     </div>
   );
+}
+
+/** "Button" → "buttons", "Navigation" → "navigations"; good enough for the kinds we detect. */
+function kindPlural(label: string): string {
+  const l = label.toLowerCase();
+  return l.endsWith('s') ? l : `${l}s`;
 }
 
 const SUMMARY_FIELD: Partial<Record<string, keyof VariantRow['styleSummary']>> = {
@@ -302,6 +316,11 @@ function tileDiffs(v: VariantRow, group: CouldBeOneGroup): string {
   return [...parts].join(' · ');
 }
 
+function differsText(diffs: string[]): string {
+  if (diffs.length <= 2) return `differs in ${diffs.join(' and ')}`;
+  return `differs in ${diffs[0]}, ${diffs[1]} and ${diffs.length - 2} more`;
+}
+
 export function OneOffListRow({ row, actions }: { row: OneOffRow; actions: RowActions }) {
   const c = row.closest;
   return (
@@ -310,13 +329,80 @@ export function OneOffListRow({ row, actions }: { row: OneOffRow; actions: RowAc
       actions={actions}
       extra={
         c && (
-          <span class="meta closest">
-            Closest: {c.name}
-            {c.differences.length > 0 && ` · differs in ${c.differences.join(', ')}`}
+          <span class="closest">
+            <span class="meta" title={c.differences.length ? `Differs in ${c.differences.join(', ')}` : undefined}>
+              Closest: <span class="closest-name">{c.name}</span>
+              {c.differences.length > 0 && ` · ${differsText(c.differences)}`}
+            </span>
             <Button variant="quiet" onClick={() => actions.merge(c.id, [row.id])} title={`Treat as ${c.name}`}>Merge</Button>
           </span>
         )
       }
     />
+  );
+}
+
+/* ---------- menu ---------- */
+
+/** A small popover menu: opens upwards from the footer, or `down` below its button. Escape and outside clicks close it. */
+export function Menu(props: { label: string; testId?: string; children: ComponentChildren; down?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const items = () => [...(wrap.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? [])];
+    items()[0]?.focus();
+    const onDown = (e: MouseEvent) => {
+      if (!wrap.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        trigger.current?.focus();
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const list = items();
+        const i = list.indexOf(document.activeElement as HTMLButtonElement);
+        list[(i + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length]?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div class="menu-wrap" ref={wrap}>
+      <button
+        ref={trigger}
+        type="button"
+        class="btn btn-secondary"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        data-testid={props.testId}
+        onClick={() => setOpen(!open)}
+      >
+        {props.label}
+      </button>
+      {open && (
+        <div class={`menu ${props.down ? 'menu-down' : ''}`} role="menu" onClick={() => setOpen(false)}>
+          {props.children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function MenuItem(props: { onClick: () => void; children: ComponentChildren; testId?: string; hint?: string }) {
+  return (
+    <button type="button" role="menuitem" class="menu-item" onClick={props.onClick} data-testid={props.testId}>
+      <span>{props.children}</span>
+      {props.hint && <span class="menu-hint">{props.hint}</span>}
+    </button>
   );
 }

@@ -21,6 +21,7 @@ export default defineManifest({
   ...(e2e ? { host_permissions: ['<all_urls>'] } : {}),
   commands: {
     'scan-page': { suggested_key: { default: 'Alt+Shift+S' }, description: 'Scan this page' },
+    'toggle-collect': { suggested_key: { default: 'Alt+Shift+C' }, description: 'Start or stop collecting components' },
   },
   minimum_chrome_version: '116',
 });

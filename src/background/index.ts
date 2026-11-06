@@ -3,10 +3,10 @@
  * screenshots and crops thumbnails.
  */
 import contentScript from '../content/index.ts?script&iife';
-import { inventoryIdForDomain } from '../detect';
-import type { Broadcast, CaptureResponse, ContentToWorker, PanelToWorker, ScanResponse, WorkerReply, WorkerToContent } from '../shared/messages';
-import { addThumbnail, listInventories, recordScan, setRecording, thumbsNeeded } from '../storage/db';
-import { cropScreenshot, throttledCapture } from './crop';
+import { inventoryIdForDomain, makeCapture, routePattern, styleKey, type Rect } from '../detect';
+import type { Broadcast, CaptureResponse, CollectResponse, ContentToWorker, FindResponse, PanelToWorker, ScanResponse, WorkerReply, WorkerToContent } from '../shared/messages';
+import { addRule, addThumbnail, ensureInventory, getGroup, getRules, groupCaptures, listInventories, putCapture, recordScan, setGroupUsage, setRecording, thumbsNeeded } from '../storage/db';
+import { BOARD_MAX, cropScreenshot, throttledCapture } from './crop';
 
 const scriptId = (domain: string) => `record:${domain}`;
 const originPattern = (url: URL) => `${url.protocol}//${url.hostname}/*`;
@@ -29,6 +29,12 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.commands?.onCommand.addListener((command, tab) => {
+  if (command === 'toggle-collect' && tab?.id) {
+    const id = tab.id;
+    if (tab.windowId !== undefined) chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => undefined);
+    void inject(id).then(() => sendToContent(id, { type: 'collect-toggle' })).catch(() => undefined);
+    return;
+  }
   if (command !== 'scan-page' || !tab?.id) return;
   if (tab.windowId !== undefined) chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => undefined);
   void scanTab(tab.id).catch(() => undefined);
@@ -36,18 +42,41 @@ chrome.commands?.onCommand.addListener((command, tab) => {
 
 /* ---------- record mode ---------- */
 
-async function registerRecording(domain: string, url: URL) {
-  const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [scriptId(domain)] });
-  if (existing.length) return;
-  await chrome.scripting.registerContentScripts([
-    {
-      id: scriptId(domain),
-      matches: [originPattern(url)],
-      js: [contentScript],
-      runAt: 'document_idle',
-      persistAcrossSessions: true,
-    },
-  ]);
+/**
+ * Script registration is check-then-act, and Chrome fires several events that trigger it (startup,
+ * install, permission removed, Start/Stop clicks). Run those changes one at a time, so two of them
+ * never both see a script and both try to remove it ("Nonexistent script ID").
+ */
+let registrations: Promise<unknown> = Promise.resolve();
+function serially<T>(task: () => Promise<T>): Promise<T> {
+  const run = registrations.then(task, task);
+  registrations = run.catch(() => undefined);
+  return run;
+}
+
+async function isRegistered(domain: string): Promise<boolean> {
+  return (await chrome.scripting.getRegisteredContentScripts({ ids: [scriptId(domain)] })).length > 0;
+}
+
+function ensureRegistered(domain: string, matches: string[]) {
+  return serially(async () => {
+    if (await isRegistered(domain)) return;
+    await chrome.scripting.registerContentScripts([
+      { id: scriptId(domain), matches, js: [contentScript], runAt: 'document_idle', persistAcrossSessions: true },
+    ]);
+  });
+}
+
+function ensureUnregistered(domain: string) {
+  return serially(async () => {
+    if (!(await isRegistered(domain))) return;
+    // Chrome may still drop it on its own in between (e.g. when site access is revoked): that's fine.
+    await chrome.scripting.unregisterContentScripts({ ids: [scriptId(domain)] }).catch(() => undefined);
+  });
+}
+
+function registerRecording(domain: string, url: URL) {
+  return ensureRegistered(domain, [originPattern(url)]);
 }
 
 async function inject(tabId: number) {
@@ -55,12 +84,14 @@ async function inject(tabId: number) {
 }
 
 async function sendScanNow(tabId: number, manual: boolean) {
-  const msg: WorkerToContent = { type: 'scan-now', manual };
+  await sendToContent(tabId, { type: 'scan-now', manual });
+}
+
+async function sendToContent<T = unknown>(tabId: number, msg: WorkerToContent): Promise<T> {
   // The content script may still be loading its module; retry briefly.
   for (let i = 0; i < 10; i++) {
     try {
-      await chrome.tabs.sendMessage(tabId, msg);
-      return;
+      return (await chrome.tabs.sendMessage(tabId, msg)) as T;
     } catch {
       await new Promise((r) => setTimeout(r, 150));
     }
@@ -82,7 +113,7 @@ async function startRecording(tabId: number, rawUrl: string) {
 
 async function stopRecording(domain: string) {
   await setRecording(domain, false);
-  await chrome.scripting.unregisterContentScripts({ ids: [scriptId(domain)] }).catch(() => undefined);
+  await ensureUnregistered(domain);
   broadcast({ type: 'inventory-changed', inventoryId: inventoryIdForDomain(domain) });
 }
 
@@ -99,21 +130,20 @@ async function scanTab(tabId: number) {
 
 /** Keep registered scripts in step with stored recording flags (e.g. after an update). */
 async function reconcile() {
-  const registered = new Set((await chrome.scripting.getRegisteredContentScripts()).map((s) => s.id));
   for (const inv of await listInventories()) {
-    const id = scriptId(inv.domain);
     const allowed = await chrome.permissions.contains({ origins: [`*://${inv.domain}/*`] }).catch(() => false);
-    if (inv.recording && allowed && !registered.has(id)) {
-      await chrome.scripting.registerContentScripts([{ id, matches: [`*://${inv.domain}/*`], js: [contentScript], runAt: 'document_idle', persistAcrossSessions: true }]);
-    }
-    if ((!inv.recording || !allowed) && registered.has(id)) await chrome.scripting.unregisterContentScripts({ ids: [id] });
+    if (inv.recording && allowed) await ensureRegistered(inv.domain, [`*://${inv.domain}/*`]);
+    else await ensureUnregistered(inv.domain);
   }
 }
-chrome.runtime.onStartup.addListener(() => void reconcile());
-chrome.runtime.onInstalled.addListener(() => void reconcile());
-chrome.permissions.onRemoved.addListener(() => void reconcile());
+const reconcileQuietly = () => void reconcile().catch((e) => console.warn('Component Inventory: could not sync recording scripts', e));
+chrome.runtime.onStartup.addListener(reconcileQuietly);
+chrome.runtime.onInstalled.addListener(reconcileQuietly);
+chrome.permissions.onRemoved.addListener(reconcileQuietly);
 
 /* ---------- messages ---------- */
+
+const withoutHash = (url: string | undefined) => (url ?? '').split('#')[0];
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
@@ -133,6 +163,21 @@ async function handleContent(msg: ContentToWorker, sender: chrome.runtime.Messag
       broadcast({ type: 'scan-status', tabId: tab.id, state: 'done', count: msg.scan.candidates.length });
       return { stored: true, needThumbs } satisfies ScanResponse;
     }
+    case 'get-rules':
+      return { rules: await getRules(domain) };
+    case 'picked':
+    case 'pick-cancelled':
+    case 'collect-state':
+      return undefined; // for the side panel
+    case 'collect': {
+      const inv = await ensureInventory(domain);
+      const wanted = msg.groupId !== undefined ? msg.groupId : (inv.collectInto ?? null);
+      const group = wanted ? await getGroup(wanted) : undefined;
+      const thumbnail = msg.rect ? await screenshotOf(tab, sender.url, msg.rect, msg.dpr) : null;
+      const { added } = await putCapture(makeCapture(inv.id, msg.draft, group?.id ?? null, msg.source, thumbnail));
+      broadcast({ type: 'inventory-changed', inventoryId: inv.id });
+      return { ok: true, added, groupName: group?.name ?? null, preview: thumbnail !== null } satisfies CollectResponse;
+    }
     case 'thumbs-wanted':
       return { stored: true, needThumbs: await thumbsNeeded(msg.variantIds) } satisfies ScanResponse;
     case 'capture': {
@@ -146,6 +191,10 @@ async function handleContent(msg: ContentToWorker, sender: chrome.runtime.Messag
         return { saved: 0, blocked: /activeTab|all_urls|permission/i.test(errorMessage(e)) } satisfies CaptureResponse;
       }
       broadcast({ type: 'capture-status', tabId: tab.id, ok: true });
+      // The capture can wait for Chrome's rate limit. If the tab moved to another page (or view) in the
+      // meantime, the screenshot shows that page, not the one the crops were measured on: drop it.
+      const now = await chrome.tabs.get(tab.id).catch(() => null);
+      if (!now?.active || withoutHash(now.url) !== withoutHash(sender.url)) return { saved: 0 } satisfies CaptureResponse;
       let saved = 0;
       for (const { crop, dataUrl } of await cropScreenshot(shot, msg.crops, msg.dpr)) {
         if (await addThumbnail(crop.variantId, dataUrl, crop.source)) saved++;
@@ -156,7 +205,41 @@ async function handleContent(msg: ContentToWorker, sender: chrome.runtime.Messag
   }
 }
 
-async function handlePanel(msg: PanelToWorker): Promise<WorkerReply> {
+/** One element's preview for the board, or null if Chrome won't screenshot this tab (no activeTab yet). */
+async function screenshotOf(tab: chrome.tabs.Tab, url: string, rect: Rect, dpr: number): Promise<string | null> {
+  if (!tab.active || tab.id === undefined) return null;
+  try {
+    const shot = await throttledCapture(tab.windowId);
+    const now = await chrome.tabs.get(tab.id).catch(() => null);
+    if (!now?.active || withoutHash(now.url) !== withoutHash(url)) return null; // moved on while waiting
+    broadcast({ type: 'capture-status', tabId: tab.id, ok: true });
+    const [crop] = await cropScreenshot(shot, [{ variantId: '', source: '', rect }], dpr, BOARD_MAX);
+    return crop?.dataUrl ?? null;
+  } catch {
+    broadcast({ type: 'capture-status', tabId: tab.id, ok: false });
+    return null;
+  }
+}
+
+async function findSimilar(tabId: number, groupId: string): Promise<FindResponse> {
+  const captures = await groupCaptures(groupId);
+  const tab = await chrome.tabs.get(tabId);
+  const route = routePattern(tab.url ?? '');
+  if (captures.length === 0) return { ok: true, count: 0, added: 0, route };
+  await inject(tabId);
+  const res = await sendToContent<Omit<FindResponse, 'route'>>(tabId, {
+    type: 'find-similar',
+    groupId,
+    matchers: captures.map((c) => ({ kind: c.kind, tag: c.tag, classes: c.classes, fingerprint: c.fingerprint })),
+    known: [...new Set(captures.map(styleKey))],
+  });
+  if (!res?.ok) return { ok: false, count: 0, added: 0, route, error: res?.error ?? 'The page did not respond.' };
+  await setGroupUsage(groupId, route, res.count);
+  broadcast({ type: 'inventory-changed', inventoryId: captures[0].inventoryId });
+  return { ...res, route };
+}
+
+async function handlePanel(msg: PanelToWorker): Promise<WorkerReply | FindResponse> {
   switch (msg.type) {
     case 'start-recording':
       await startRecording(msg.tabId, msg.url);
@@ -167,6 +250,21 @@ async function handlePanel(msg: PanelToWorker): Promise<WorkerReply> {
     case 'scan-tab':
       await scanTab(msg.tabId);
       return { ok: true };
+    case 'start-pick':
+      await inject(msg.tabId);
+      await sendToContent(msg.tabId, { type: 'pick-start' });
+      return { ok: true };
+    case 'add-rule':
+      await addRule(msg.domain, msg.rule);
+      broadcast({ type: 'inventory-changed', inventoryId: inventoryIdForDomain(msg.domain) });
+      await scanTab(msg.tabId); // apply it now: a manual scan stores the page and crops previews
+      return { ok: true };
+    case 'set-collecting':
+      if (msg.on) await inject(msg.tabId);
+      await sendToContent(msg.tabId, { type: msg.on ? 'collect-start' : 'collect-stop' });
+      return { ok: true };
+    case 'find-similar':
+      return findSimilar(msg.tabId, msg.groupId);
   }
 }
 

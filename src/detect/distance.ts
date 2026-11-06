@@ -1,5 +1,5 @@
 /** Step 3b: compare two variants property by property. */
-import { CONTAINER_KINDS } from './classify';
+import { CONTAINER_KINDS, structureSimilarity } from './classify';
 import { deltaE, displayColor } from './color';
 import { borderString, heightMatters, normalizeStyle, paddingString } from './fingerprint';
 import { DEFAULT_THRESHOLDS, type Thresholds } from './thresholds';
@@ -16,6 +16,7 @@ export const DIFF_PROPS = [
   'text colour',
   'height',
   'shadow',
+  'underline',
   'structure',
 ] as const;
 export type DiffProp = (typeof DIFF_PROPS)[number];
@@ -50,26 +51,7 @@ function colour(prop: DiffProp, a: string, b: string, threshold: number): PropDi
   return { prop, within: d <= threshold, score: Math.min(d / threshold, CAP) };
 }
 
-function tokens(structure: string): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const t of structure.split(/[(),+]+/).filter(Boolean)) m.set(t, (m.get(t) ?? 0) + 1);
-  return m;
-}
-
-/** Dice coefficient over tag multisets: 1 = same tags, 0 = nothing in common. */
-export function structureSimilarity(a: string, b: string): number {
-  if (a === b) return 1;
-  const ta = tokens(a);
-  const tb = tokens(b);
-  let common = 0;
-  let total = 0;
-  for (const [t, n] of ta) {
-    common += Math.min(n, tb.get(t) ?? 0);
-    total += n;
-  }
-  for (const n of tb.values()) total += n;
-  return total === 0 ? 1 : (2 * common) / total;
-}
+export { structureSimilarity };
 
 /** Every property in which a and b differ. Empty when they are style-identical. */
 export function compare(a: Comparable, b: Comparable, t: Thresholds = DEFAULT_THRESHOLDS): PropDiff[] {
@@ -104,6 +86,7 @@ export function compare(a: Comparable, b: Comparable, t: Thresholds = DEFAULT_TH
   out.push(colour('text colour', sa.color, sb.color, t.color));
   if (heightMatters(a.kind)) out.push(numeric('height', sa.height, sb.height, t.height));
   out.push(sa.shadow === sb.shadow ? null : { prop: 'shadow', within: false, score: CATEGORICAL });
+  if (a.kind === 'link' && sa.textDecoration !== sb.textDecoration) out.push({ prop: 'underline', within: true, score: 1 });
 
   if (CONTAINER_KINDS.has(a.kind) && a.fingerprint.structure !== b.fingerprint.structure) {
     const sim = structureSimilarity(a.fingerprint.structure, b.fingerprint.structure);
@@ -140,6 +123,7 @@ export function propValue(prop: DiffProp, style: StyleProps, structure: string):
     case 'text colour': return displayColor(s.color);
     case 'height': return `${s.height}`;
     case 'shadow': return s.shadow ? 'shadow' : 'none';
+    case 'underline': return s.textDecoration ?? 'none';
     case 'structure': return structure;
   }
 }

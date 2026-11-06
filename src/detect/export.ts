@@ -1,6 +1,5 @@
 /**
- * JSON export: the carrier between the extension and the Figma plugin.
- * Users can download it but never need to read it.
+ * JSON export of an inventory (Download JSON in the side panel).
  */
 import { buildReport, type CouldBeOneGroup, type OneOffRow, type Report, type VariantRow } from './report';
 import type { InventoryState, Kind, Rect, StyleSummary, Subkind, VariantStatus } from './types';

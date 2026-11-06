@@ -10,7 +10,9 @@ import {
   formatStructure,
   normalizeColor,
   type Candidate,
+  matchesClassRule,
   type NodeFacts,
+  type PickRule,
   type StyleProps,
   type TagTree,
 } from '../detect';
@@ -21,7 +23,7 @@ export interface CollectResult {
   elements: Element[];
 }
 
-const SKIP_TAGS = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'iframe', 'object', 'embed', 'canvas', 'video', 'audio', 'picture', 'img', 'svg', 'br', 'hr', 'option', 'optgroup']);
+const SKIP_TAGS = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'iframe', 'object', 'embed', 'canvas', 'video', 'audio', 'br', 'hr', 'option', 'optgroup']);
 const LEAF_TAGS = new Set(['svg', 'select', 'textarea', 'input', 'img', 'canvas', 'video']);
 export const OVERLAY_HOST_ID = '__component-inventory-overlay';
 
@@ -109,7 +111,8 @@ export function readStyle(cs: CSSStyleDeclaration, rect: DOMRect): StyleProps {
     paddingRight: px(cs.paddingRight),
     paddingBottom: px(cs.paddingBottom),
     paddingLeft: px(cs.paddingLeft),
-    radius: px(cs.borderTopLeftRadius.split(' ')[0], Math.min(rect.width, rect.height)),
+    // A radius past half the shorter side renders the same (pills use 9999px): store what you see.
+    radius: Math.min(px(cs.borderTopLeftRadius.split(' ')[0], Math.min(rect.width, rect.height)), Math.min(rect.width, rect.height) / 2),
     borderWidth: border?.width ?? 0,
     borderStyle: border?.style ?? 'none',
     borderColor: border?.color ?? '#00000000',
@@ -117,6 +120,7 @@ export function readStyle(cs: CSSStyleDeclaration, rect: DOMRect): StyleProps {
     color: toHexColor(cs.color),
     height: rect.height,
     shadow: cs.boxShadow !== 'none' && cs.boxShadow !== '',
+    textDecoration: cs.textDecorationLine,
   };
 }
 
@@ -145,6 +149,17 @@ export function selectorPath(el: Element): string {
   return parts.join(' > ');
 }
 
+/** Displayed, visible and somewhere on the page (not parked off screen). */
+export function isShown(el: Element, cs: CSSStyleDeclaration): boolean {
+  if (cs.display === 'none' || !isVisible(el, cs)) return false;
+  const r = el.getBoundingClientRect();
+  if (r.width < 1 || r.height < 1) return false;
+  const doc = el.ownerDocument;
+  const x = r.left + scrollX;
+  const y = r.top + scrollY;
+  return x + r.width > 0 && y + r.height > 0 && x < doc.documentElement.scrollWidth && y < doc.documentElement.scrollHeight;
+}
+
 function isVisible(el: Element, cs: CSSStyleDeclaration): boolean {
   const anyEl = el as Element & { checkVisibility?: (o: object) => boolean };
   if (typeof anyEl.checkVisibility === 'function') {
@@ -164,7 +179,7 @@ interface Ctx {
 
 /* ---------- main walk ---------- */
 
-export function collectCandidates(doc: Document = document): CollectResult {
+export function collectCandidates(doc: Document = document, rules: PickRule[] = []): CollectResult {
   const win = doc.defaultView ?? window;
   const scrollX = win.scrollX;
   const scrollY = win.scrollY;
@@ -183,6 +198,27 @@ export function collectCandidates(doc: Document = document): CollectResult {
     return cs;
   };
 
+  // Hand-picked rules win over the classifier. One-element rules resolve their selector once.
+  const path = (doc.defaultView ?? window).location.pathname;
+  const pinned = new Map<Element, PickRule>();
+  for (const r of rules) {
+    if (!r.selector || r.path !== path) continue;
+    try {
+      const el = doc.querySelector(r.selector);
+      if (el) pinned.set(el, r);
+    } catch {
+      /* a selector from an older page layout */
+    }
+  }
+  const classRules = rules.filter((r) => !r.selector);
+  const ruleTags = new Set(classRules.map((r) => r.tag));
+  const ruleFor = (el: Element, tag: string): PickRule | undefined => {
+    const one = pinned.get(el);
+    if (one || !ruleTags.has(tag)) return one;
+    const classes = new Set(cleanClassTokens(Array.from(el.classList)));
+    return classRules.find((r) => matchesClassRule(r, tag, classes));
+  };
+
   const rootBg = (() => {
     const b = toHexColor(style(doc.body).backgroundColor);
     if (!b.endsWith('00')) return b;
@@ -192,8 +228,8 @@ export function collectCandidates(doc: Document = document): CollectResult {
 
   const visit = (el: Element, ctx: Ctx) => {
     const tag = el.tagName.toLowerCase();
-    if (SKIP_TAGS.has(tag) && tag !== 'svg') return;
-    if (el.id === OVERLAY_HOST_ID) return;
+    if (SKIP_TAGS.has(tag)) return;
+    if (el.id.startsWith(OVERLAY_HOST_ID)) return; // our highlight and picker overlays
     const cs = style(el);
     if (cs.display === 'none') return;
 
@@ -208,8 +244,10 @@ export function collectCandidates(doc: Document = document): CollectResult {
     const boxed = hasBox(cs, ctx.bg);
 
     let kind: ReturnType<typeof classify> = null;
-    if (visible && onPage && !fullPage && tag !== 'body' && tag !== 'svg') {
-      const small = rect.height <= 32 && rect.width <= 240;
+    if (visible && onPage && !fullPage && tag !== 'body') {
+      const small = rect.height <= 128 && rect.width <= 240;
+      const radius = px(cs.borderTopLeftRadius.split(' ')[0], Math.min(rect.width, rect.height));
+      const firstChild = el.firstElementChild;
       const facts: NodeFacts = {
         tag,
         role: el.getAttribute('role')?.trim().toLowerCase() || null,
@@ -227,8 +265,13 @@ export function collectCandidates(doc: Document = document): CollectResult {
         inTable: ctx.inTable,
         inButton: ctx.inButton,
         inCard: ctx.inCard,
+        href: tag === 'a' && el.hasAttribute('href'),
+        label: el.getAttribute('aria-label')?.trim().toLowerCase() || null,
+        round: radius >= Math.min(rect.width, rect.height) * 0.45,
+        image: tag === 'img' || cs.backgroundImage.includes('url(') || (el.childElementCount === 1 && firstChild?.tagName.toLowerCase() === 'img'),
       };
-      kind = classify(facts);
+      const rule = ruleFor(el, tag);
+      kind = rule ? { kind: rule.kind, subkind: rule.subkind } : classify(facts);
       if (kind) {
         const localId = candidates.length;
         const fixtureKey = el.getAttribute('data-ci-key') ?? undefined;
@@ -249,7 +292,7 @@ export function collectCandidates(doc: Document = document): CollectResult {
       }
     }
 
-    if (tag === 'svg' || LEAF_TAGS.has(tag)) return;
+    if (LEAF_TAGS.has(tag)) return;
 
     const role = el.getAttribute('role');
     const ownBg = toHexColor(cs.backgroundColor);
@@ -270,7 +313,11 @@ export function collectCandidates(doc: Document = document): CollectResult {
       const shapes = children.map((c) => {
         const ccs = style(c);
         const box = ccs.display !== 'none' && hasBox(ccs, next.bg);
-        return { tag: c.tagName.toLowerCase(), structure: box ? structureOf(c) : '', hasBox: box };
+        if (!box) return { tag: c.tagName.toLowerCase(), structure: '', hasBox: false };
+        const r = c.getBoundingClientRect();
+        const radius = Math.round(px(ccs.borderTopLeftRadius.split(' ')[0], Math.min(r.width, r.height)));
+        const boxKey = `${radius}|${visibleBorder(ccs)?.width ?? 0}|${ccs.boxShadow !== 'none' ? 1 : 0}`;
+        return { tag: c.tagName.toLowerCase(), structure: structureOf(c), hasBox: true, boxKey };
       });
       repeated = findRepeatedSiblings(shapes);
     }

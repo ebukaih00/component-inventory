@@ -1,6 +1,6 @@
 # Export without a plugin
 
-Nov 2026 · status: ready to build
+Nov 2026 · status: HTML report built (step 2). The Figma plugin was removed; SVG paste (steps 3–5) not started.
 
 ## Why
 

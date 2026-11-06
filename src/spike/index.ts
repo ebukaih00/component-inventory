@@ -21,13 +21,13 @@ let lastElements = new Map<string, Element[]>();
 function report() {
   const r = buildReport(state, { thresholds });
   const s = r.summary;
-  console.log(`%cComponent inventory — ${s.screens} screens, ${s.pages} pages · Common ${s.common} · Could be one ${s.couldBeOne} · One-off ${s.oneOff}`, 'font-weight:bold');
-  console.groupCollapsed(`Common (${r.common.length})`);
+  console.log(`%cComponent inventory — ${s.screens} screens, ${s.pages} pages · Reused ${s.common} · Near-duplicates ${s.couldBeOne} · One-off ${s.oneOff}`, 'font-weight:bold');
+  console.groupCollapsed(`Reused (${r.common.length})`);
   console.table(r.common.map((v) => ({ id: v.id, name: v.name, uses: v.uses, screens: v.screens.join(' '), ...v.styleSummary })));
   console.groupEnd();
-  console.groupCollapsed(`Could be one (${r.couldBeOne.length})`);
+  console.groupCollapsed(`Near-duplicates (${r.couldBeOne.length})`);
   for (const g of r.couldBeOne) {
-    console.log(`${g.reason} · ${g.uses} uses · ${g.diffs.map((d) => `${d.prop} ${d.values.join(' · ')}`).join(', ') || '—'}`);
+    console.log(`${g.uses} uses · ${g.diffs.map((d) => `${d.prop} ${d.values.join(' · ')}`).join(', ') || '—'}`);
     console.table(g.variants.map((v) => ({ id: v.id, name: v.name, uses: v.uses, ...v.styleSummary })));
   }
   console.groupEnd();

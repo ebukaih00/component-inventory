@@ -9,4 +9,7 @@ export * from './route';
 export * from './inventory';
 export * from './report';
 export * from './export';
+export { BUCKETS, type BucketKey } from './labels';
+export * from './rules';
 export { hash } from './hash';
+export * from './collection';

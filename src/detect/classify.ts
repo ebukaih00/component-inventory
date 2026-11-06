@@ -25,6 +25,14 @@ export interface NodeFacts {
   inTable: boolean;
   inButton: boolean;
   inCard: boolean;
+  /** a[href]. */
+  href: boolean;
+  /** aria-label, lower case. */
+  label: string | null;
+  /** border-radius is at least ~half the shorter side. */
+  round: boolean;
+  /** An img, a background image, or a single img child. */
+  image: boolean;
 }
 
 export interface Classification {
@@ -40,12 +48,31 @@ const tokenRe = (words: string) => new RegExp(`(^|[-_])(${words})([-_]|$|s$)`, '
 const BUTTON_CLASS = tokenRe('btn|button');
 const BADGE_CLASS = tokenRe('badge|tag|chip|pill|lozenge|status|label');
 const CARD_CLASS = tokenRe('card|tile|panel');
+const ALERT_CLASS = tokenRe('alert|banner|callout|notice|toast|snackbar|flash');
+const AVATAR_CLASS = tokenRe('avatar');
+const ICON_CLASS = /^(icon|fa|fas|far|fab|bi|mdi|material-icons|material-symbols-\w+|material-symbols|glyphicon)(-|$)/i;
+const BREADCRUMB = /breadcrumb/i;
+const PAGINATION = /pagination|pager/i;
 
 const hasToken = (f: NodeFacts, re: RegExp) => f.classTokens.some((t) => re.test(t));
 const isInline = (display: string) => display.startsWith('inline');
 
 export function classify(f: NodeFacts): Classification | null {
   const { tag, role } = f;
+  const squareish = f.width > 0 && f.height > 0 && f.width / f.height >= 0.75 && f.width / f.height <= 1.33;
+
+  // Icons: small square SVGs and icon-font glyphs, anywhere (inside buttons too: icon sizes drift).
+  if (tag === 'svg') return squareish && f.width >= 8 && f.width <= 48 ? { kind: 'icon', subkind: null } : null;
+  if ((tag === 'i' || tag === 'span') && f.childElementCount === 0 && hasToken(f, ICON_CLASS) && f.width <= 48 && f.height <= 48) {
+    return { kind: 'icon', subkind: null };
+  }
+
+  // Overlays, while they are open on screen
+  if (tag === 'dialog' || role === 'dialog' || role === 'alertdialog') return { kind: 'dialog', subkind: null };
+  if (role === 'menu') return f.inButton ? null : { kind: 'menu', subkind: null };
+
+  // Progress
+  if (tag === 'progress' || tag === 'meter' || role === 'progressbar' || role === 'meter') return { kind: 'progress', subkind: null };
 
   // Tables
   if (tag === 'table' || role === 'table' || role === 'grid') {
@@ -55,6 +82,10 @@ export function classify(f: NodeFacts): Classification | null {
 
   // Tabs and navigation (containers)
   if (role === 'tablist') return { kind: 'nav', subkind: 'tabs' };
+  const navLike = tag === 'nav' || role === 'navigation' || ((tag === 'ol' || tag === 'ul') && !f.inNav);
+  const named = `${f.label ?? ''} ${f.classTokens.join(' ')}`;
+  if (navLike && !f.inNav && BREADCRUMB.test(named)) return { kind: 'nav', subkind: 'breadcrumb' };
+  if (navLike && !f.inNav && PAGINATION.test(named)) return { kind: 'nav', subkind: 'pagination' };
   if (tag === 'nav' || role === 'navigation') return f.inNav ? null : { kind: 'nav', subkind: 'nav' };
 
   // Form inputs
@@ -80,6 +111,18 @@ export function classify(f: NodeFacts): Classification | null {
   }
   if (f.inButton) return null;
 
+  // Avatars: round and square, with a picture or initials (or say so)
+  const avatarSize = squareish && f.width >= 20 && f.width <= 128;
+  if (avatarSize && (hasToken(f, AVATAR_CLASS) || (f.round && (f.image || (f.textLength >= 1 && f.textLength <= 2 && f.width >= 24))))) {
+    return { kind: 'avatar', subkind: null };
+  }
+  if (tag === 'img') return null; // other images are content, not components
+
+  // Alerts and banners: a wide box that announces itself
+  if (f.hasBox && f.width >= 160 && !f.inCard && (role === 'alert' || role === 'status' || hasToken(f, ALERT_CLASS))) {
+    return { kind: 'alert', subkind: null };
+  }
+
   // Badges and tags: small, inline, boxed, short text
   const smallText = f.textLength > 0 && f.textLength <= 30 && f.height <= 32 && f.width <= 240 && f.childElementCount <= 2;
   if (tag !== 'label' && smallText && f.hasBox) {
@@ -90,28 +133,60 @@ export function classify(f: NodeFacts): Classification | null {
   if (f.hasBox && !f.inNav && !f.inCard && f.width >= 80 && f.height >= 40 && f.descendantCount >= 2) {
     if (f.repeated || hasToken(f, CARD_CLASS)) return { kind: 'card', subkind: null };
   }
+
+  // Text links: a[href] without a box (boxed ones are buttons, badges or cards above)
+  if (tag === 'a' && f.href && !f.inNav && !f.hasBox && f.textLength >= 1 && f.textLength <= 120 && f.height <= 40) {
+    return { kind: 'link', subkind: null };
+  }
   return null;
 }
 
 /** Kinds whose variants are split by structure as well as style (their content defines them). */
-export const CONTAINER_KINDS: ReadonlySet<Kind> = new Set<Kind>(['card', 'table', 'nav']);
+export const CONTAINER_KINDS: ReadonlySet<Kind> = new Set<Kind>(['card', 'table', 'nav', 'menu', 'dialog']);
 
 export interface SiblingShape {
   tag: string;
   structure: string;
   hasBox: boolean;
+  /** The box's shape, without colours: radius, border width, shadow. A highlighted card keeps it. */
+  boxKey?: string;
 }
 
+function tokens(structure: string): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const t of structure.split(/[(),+]+/).filter(Boolean)) m.set(t, (m.get(t) ?? 0) + 1);
+  return m;
+}
+
+/** Dice coefficient over tag multisets: 1 = same tags, 0 = nothing in common. */
+export function structureSimilarity(a: string, b: string): number {
+  if (a === b) return 1;
+  const ta = tokens(a);
+  const tb = tokens(b);
+  let common = 0;
+  let total = 0;
+  for (const [t, n] of ta) {
+    common += Math.min(n, tb.get(t) ?? 0);
+    total += n;
+  }
+  for (const n of tb.values()) total += n;
+  return total === 0 ? 1 : (2 * common) / total;
+}
+
+/** How alike two siblings' contents must be to count as repeats of one design (pricing plans vary). */
+const SIBLING_SIMILARITY = 0.6;
+
 /**
- * Repetition rule: sibling elements with the same tag and structure, at least two of them,
- * each with a visual box. Returns a flag per sibling.
+ * Repetition rule: at least two boxed siblings with the same tag that look like one design: the same
+ * structure, or the same box shape (radius, border, shadow) with broadly similar contents. Content
+ * differences such as a "Most popular" line or a longer feature list don't break the repetition.
+ * Returns a flag per sibling.
  */
 export function findRepeatedSiblings(siblings: SiblingShape[]): boolean[] {
-  const counts = new Map<string, number>();
-  const keyOf = (s: SiblingShape) => `${s.tag}|${s.structure}`;
-  for (const s of siblings) {
-    if (!s.hasBox || !s.structure.includes('(')) continue;
-    counts.set(keyOf(s), (counts.get(keyOf(s)) ?? 0) + 1);
-  }
-  return siblings.map((s) => s.hasBox && (counts.get(keyOf(s)) ?? 0) >= 2);
+  const ok = siblings.map((s) => s.hasBox && s.structure.includes('('));
+  const alike = (a: SiblingShape, b: SiblingShape) =>
+    a.tag === b.tag &&
+    (a.structure === b.structure ||
+      (a.boxKey !== undefined && a.boxKey === b.boxKey && structureSimilarity(a.structure, b.structure) >= SIBLING_SIMILARITY));
+  return siblings.map((s, i) => ok[i] && siblings.some((o, j) => j !== i && ok[j] && alike(s, o)));
 }

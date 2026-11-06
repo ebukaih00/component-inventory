@@ -52,20 +52,27 @@ describe('fixture answer key', () => {
     });
   }
 
+  /** What each planted group differs in. */
+  const GROUP_DIFFS: Record<string, { prop: string; values: string[] }[]> = {
+    ghost: [{ prop: 'radius', values: ['4', '6', '8'] }],
+    'icon-size': [{ prop: 'height', values: ['16', '20'] }],
+  };
+
   it('groups near-duplicates together and only them', () => {
     const groups = new Map<string, string[]>();
     for (const [k, item] of Object.entries(key.items)) if (item.group) groups.set(item.group, [...(groups.get(item.group) ?? []), k]);
-    for (const keys of groups.values()) {
+    expect([...groups.keys()].sort()).toEqual(Object.keys(GROUP_DIFFS).sort());
+    for (const [name, keys] of groups) {
       const ids = keys.map((k) => groupOf(variantsOf(k)[0])?.id);
       expect(new Set(ids).size).toBe(1);
       const g = report.couldBeOne.find((x) => x.id === ids[0])!;
       expect(g.reason).toBe('near-duplicates');
       expect(g.variants).toHaveLength(keys.length);
-      expect(g.diffs).toEqual([{ prop: 'radius', values: ['4', '6', '8'] }]);
+      expect(g.diffs, name).toEqual(GROUP_DIFFS[name]);
     }
   });
 
   it('summarises screens and buckets', () => {
-    expect(report.summary).toMatchObject({ screens: 4, pages: 4, common: 7, couldBeOne: 2, oneOff: 5 });
+    expect(report.summary).toMatchObject({ screens: 5, pages: 5, common: 13, couldBeOne: 2, oneOff: 13 });
   });
 });

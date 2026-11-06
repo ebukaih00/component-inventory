@@ -23,7 +23,8 @@
           "background": "#14213dff",
           "color": "#222222ff",
           "height": 56,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "topnav"
@@ -59,7 +60,8 @@
           "background": "#00000000",
           "color": "#222222ff",
           "height": 35,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "tabs"
@@ -95,7 +97,8 @@
           "background": "#ffffffff",
           "color": "#111111ff",
           "height": 36,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "text-input"
@@ -131,7 +134,8 @@
           "background": "#00000000",
           "color": "#000000ff",
           "height": 16,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "check"
@@ -167,7 +171,8 @@
           "background": "#00000000",
           "color": "#2563ebff",
           "height": 32,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "ghost",
@@ -204,7 +209,8 @@
           "background": "#ffffffff",
           "color": "#222222ff",
           "height": 132,
-          "shadow": false
+          "shadow": false,
+          "textDecoration": "none"
         },
         "classes": [
           "invoices"
@@ -218,6 +224,118 @@
       },
       "selectorPath": "body > div > main > table",
       "fixtureKey": "table-invoices"
+    },
+    {
+      "localId": 6,
+      "kind": "card",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(h3,p,ul(li+))",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 16,
+          "paddingRight": 16,
+          "paddingBottom": 16,
+          "paddingLeft": 16,
+          "radius": 12,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#e7dccfff",
+          "background": "#ffffffff",
+          "color": "#222222ff",
+          "height": 150,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "plan"
+        ]
+      },
+      "rect": {
+        "x": 32,
+        "y": 499,
+        "width": 220,
+        "height": 150
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(5) > div:nth-of-type(1)",
+      "fixtureKey": "card-plan"
+    },
+    {
+      "localId": 7,
+      "kind": "card",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(p,h3,p,ul(li+))",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 16,
+          "paddingRight": 16,
+          "paddingBottom": 16,
+          "paddingLeft": 16,
+          "radius": 12,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#28030fff",
+          "background": "#ffffffff",
+          "color": "#222222ff",
+          "height": 150,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "plan",
+          "plan-popular"
+        ]
+      },
+      "rect": {
+        "x": 268,
+        "y": 499,
+        "width": 220,
+        "height": 150
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(5) > div:nth-of-type(2)",
+      "fixtureKey": "card-plan-popular"
+    },
+    {
+      "localId": 8,
+      "kind": "card",
+      "subkind": null,
+      "fingerprint": {
+        "structure": "div(h3,p,ul(li+))",
+        "style": {
+          "fontFamily": "Arial, Helvetica, sans-serif",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "paddingTop": 16,
+          "paddingRight": 16,
+          "paddingBottom": 16,
+          "paddingLeft": 16,
+          "radius": 12,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderColor": "#e7dccfff",
+          "background": "#ffffffff",
+          "color": "#222222ff",
+          "height": 150,
+          "shadow": false,
+          "textDecoration": "none"
+        },
+        "classes": [
+          "plan"
+        ]
+      },
+      "rect": {
+        "x": 504,
+        "y": 499,
+        "width": 220,
+        "height": 150
+      },
+      "selectorPath": "body > div > main > div:nth-of-type(5) > div:nth-of-type(3)",
+      "fixtureKey": "card-plan"
     }
   ]
 }

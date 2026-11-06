@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plans · Tall</title>
+<!--
+  E2E only (not in the answer key): pricing columns taller than the 800px test viewport, below the fold.
+  They can never be fully on screen, so a preview must come from their visible top part.
+-->
+<style>
+  body { margin: 0; font: 14px Arial, sans-serif; }
+  .spacer { height: 1200px; }
+  .plans { display: flex; gap: 24px; padding: 24px; }
+  .plan { width: 260px; height: 1100px; padding: 20px; border: 1px solid #e7dccf; border-radius: 12px; background: #fff; }
+  .plan h2 { margin: 0 0 8px; font-size: 20px; }
+</style>
+</head>
+<body>
+<div class="spacer">Scroll down for plans</div>
+<div class="plans">
+  <div class="plan"><h2>Starter</h2><p>£0</p><ul><li>One</li><li>Two</li></ul></div>
+  <div class="plan"><h2>Team</h2><p>£12</p><ul><li>One</li><li>Two</li></ul></div>
+</div>
+</body>
+</html>

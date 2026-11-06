@@ -3,19 +3,26 @@
  * Everything in src/detect is pure TypeScript: no DOM globals, no chrome.* APIs.
  */
 
-export const KINDS = ['button', 'input', 'badge', 'card', 'table', 'nav'] as const;
+export const KINDS = ['button', 'link', 'input', 'badge', 'icon', 'avatar', 'card', 'alert', 'table', 'nav', 'menu', 'dialog', 'progress'] as const;
 export type Kind = (typeof KINDS)[number];
 
 /** Finer split inside a kind. Form inputs and nav need it; other kinds use null. */
-export type Subkind = 'text' | 'select' | 'checkbox' | 'radio' | 'toggle' | 'tabs' | 'nav' | null;
+export type Subkind = 'text' | 'select' | 'checkbox' | 'radio' | 'toggle' | 'tabs' | 'nav' | 'breadcrumb' | 'pagination' | null;
 
 export const KIND_LABELS: Record<Kind, string> = {
   button: 'Button',
+  link: 'Link',
   input: 'Input',
   badge: 'Badge',
+  icon: 'Icon',
+  avatar: 'Avatar',
   card: 'Card',
+  alert: 'Alert',
   table: 'Table',
   nav: 'Navigation',
+  menu: 'Menu',
+  dialog: 'Dialog',
+  progress: 'Progress',
 };
 
 /** Computed style, already normalised: px numbers, colours as #rrggbbaa. */
@@ -35,6 +42,8 @@ export interface StyleProps {
   color: string;
   height: number;
   shadow: boolean;
+  /** text-decoration-line. Only part of a link's identity. Missing in data stored before links existed. */
+  textDecoration?: string;
 }
 
 export interface Fingerprint {
@@ -81,6 +90,27 @@ export interface Inventory {
   domain: string;
   createdAt: number;
   recording: boolean;
+  /** Elements the user picked by hand. Missing in inventories made before picking existed. */
+  rules?: PickRule[];
+  /** The board: the group Collect adds to (null or missing: Unsorted). */
+  collectInto?: string | null;
+}
+
+/**
+ * "This is a component": added with the element picker. Either everything with this tag and these
+ * (stable) classes, on every page, or one element on one page (selector + path).
+ */
+export interface PickRule {
+  id: string;
+  kind: Kind;
+  subkind: Subkind;
+  tag: string;
+  /** Stable class tokens (cleanClassTokens). Empty for a one-element rule. */
+  classes: string[];
+  /** One-element rule only: a CSS selector and the URL path it applies on. */
+  selector?: string;
+  path?: string;
+  createdAt: number;
 }
 
 export interface Page {

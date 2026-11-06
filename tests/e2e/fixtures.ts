@@ -37,8 +37,10 @@ export async function tabIdOf(worker: Worker, url: string): Promise<number> {
   return worker.evaluate(async (u) => (await chrome.tabs.query({})).find((t) => t.url?.startsWith(u))!.id!, url);
 }
 
-export async function openPanel(context: BrowserContext, extensionId: string, tabId: number): Promise<Page> {
+/** Opens the side panel as a page, pinned to a tab. The panel opens on the Board; most tests want Auto-detect. */
+export async function openPanel(context: BrowserContext, extensionId: string, tabId: number, view: 'board' | 'detect' = 'detect'): Promise<Page> {
   const panel = await context.newPage();
   await panel.goto(`chrome-extension://${extensionId}/src/sidepanel/index.html?tab=${tabId}`);
+  await panel.getByTestId(`view-${view}`).click();
   return panel;
 }

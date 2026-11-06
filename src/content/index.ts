@@ -4,9 +4,13 @@
  * visible instances as the user scrolls.
  */
 import { inventoryIdForDomain, variantId, variantKey, type Candidate } from '../detect';
+import type { PickRule } from '../detect';
 import type { CaptureResponse, ContentToWorker, Crop, PanelToContent, ScanResponse, ThumbNeed, WorkerToContent } from '../shared/messages';
 import { collectCandidates, OVERLAY_HOST_ID } from './collect';
+import { cropRect } from './geometry';
 import { clearHighlight, highlight } from './overlay';
+import { collectedLine, collectElement, findSimilar, highlightSelectors } from './board';
+import { describePick, pickerMode, startPicker, stopPicker } from './picker';
 
 declare global {
   interface Window {
@@ -15,8 +19,12 @@ declare global {
 }
 
 const RESCAN_DEBOUNCE_MS = 1200;
+/** Pages that never go quiet (tickers, video, carousels) still get rescanned this often. */
+const RESCAN_MAX_WAIT_MS = 3000;
+/** After an in-app navigation, give the new view this long to render, whatever else is changing. */
+const ROUTE_SETTLE_MS = 700;
 const SCROLL_DEBOUNCE_MS = 600;
-const MAX_SCROLL_CAPTURES = 30;
+const MAX_SCROLL_CAPTURES = 80;
 
 if (!window.__componentInventoryLoaded) {
   window.__componentInventoryLoaded = true;
@@ -45,7 +53,8 @@ function main() {
     }
     scanning = true;
     try {
-      const result = collectCandidates(document);
+      const rules = await send<{ rules?: PickRule[] }>({ type: 'get-rules' }).then((r) => r?.rules ?? [], () => []);
+      const result = collectCandidates(document, rules);
       candidates = result.candidates;
       elements = result.elements;
       byVariant = new Map();
@@ -73,11 +82,6 @@ function main() {
     }
   }
 
-  function inViewport(el: Element) {
-    const r = el.getBoundingClientRect();
-    return r.width >= 2 && r.height >= 2 && r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= innerWidth;
-  }
-
   /** Picks up to `need` not-yet-cropped instances per variant that are fully on screen. */
   function visibleCrops(needs: Record<string, ThumbNeed>): Crop[] {
     const crops: Crop[] = [];
@@ -87,9 +91,9 @@ function main() {
         if (left <= 0) break;
         const el = elements[localId];
         const src = source(localId);
-        if (!el?.isConnected || need.sources.includes(src) || !inViewport(el)) continue;
-        const r = el.getBoundingClientRect();
-        crops.push({ variantId: vid, source: src, rect: { x: r.left, y: r.top, width: r.width, height: r.height } });
+        const rect = el?.isConnected && !need.sources.includes(src) ? cropRect(el) : null;
+        if (!rect) continue;
+        crops.push({ variantId: vid, source: src, rect });
         need.sources.push(src);
         left--;
       }
@@ -124,7 +128,13 @@ function main() {
         if (!entry) break;
         const [vid, need] = entry;
         const localId = (byVariant.get(vid) ?? []).find((id) => pending(id, need))!;
-        elements[localId].scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' as ScrollBehavior });
+        // Tall or wide components: bring their top (left) edge into view, since that part is what gets cropped.
+        const r = elements[localId].getBoundingClientRect();
+        elements[localId].scrollIntoView({
+          block: r.height > innerHeight ? 'start' : 'center',
+          inline: r.width > innerWidth ? 'start' : 'center',
+          behavior: 'instant' as ScrollBehavior,
+        });
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         const crops = visibleCrops(needThumbs);
         if (!crops.some((c) => c.variantId === vid)) {
@@ -149,22 +159,44 @@ function main() {
   /* ---------- record mode: rescan after DOM changes and route changes ---------- */
 
   let rescanTimer: number | undefined;
-  const scheduleRescan = () => {
+  let routeTimer: number | undefined;
+  let pendingSince: number | null = null;
+  const rescanNow = () => {
     window.clearTimeout(rescanTimer);
-    rescanTimer = window.setTimeout(() => void scan(false), RESCAN_DEBOUNCE_MS);
+    window.clearTimeout(routeTimer);
+    routeTimer = undefined;
+    pendingSince = null;
+    void scan(false);
+  };
+  /** Debounced, but a stream of DOM changes can only delay a rescan by RESCAN_MAX_WAIT_MS. */
+  const scheduleRescan = () => {
+    const now = Date.now();
+    pendingSince ??= now;
+    window.clearTimeout(rescanTimer);
+    const wait = Math.min(RESCAN_DEBOUNCE_MS, Math.max(0, pendingSince + RESCAN_MAX_WAIT_MS - now));
+    rescanTimer = window.setTimeout(rescanNow, wait);
+  };
+  /** A new URL: scan once the view has had a moment to render. DOM changes don't push this back. */
+  const onRouteChange = () => {
+    if (routeTimer !== undefined) return;
+    routeTimer = window.setTimeout(rescanNow, ROUTE_SETTLE_MS);
   };
 
   const observer = new MutationObserver((records) => {
     if (capturing) return;
-    const ours = records.every((r) => (r.target as Element).id === OVERLAY_HOST_ID || [...r.addedNodes, ...r.removedNodes].every((n) => (n as Element).id === OVERLAY_HOST_ID));
+    const isOurs = (n: Node) => typeof (n as Element).id === 'string' && (n as Element).id.startsWith(OVERLAY_HOST_ID);
+    const ours = records.every((r) => isOurs(r.target) || [...r.addedNodes, ...r.removedNodes].every(isOurs));
     if (!ours) scheduleRescan();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded'] });
 
-  // SPA navigations without DOM mutations (rare) — poll the URL cheaply.
-  window.setInterval(() => {
-    if (location.href !== lastUrl) scheduleRescan();
-  }, 1000);
+  // In-app (SPA) navigations: pushState/replaceState can't be observed from an isolated world, so poll
+  // the URL cheaply, and catch back/forward directly.
+  const checkUrl = () => {
+    if (location.href.split('#')[0] !== lastUrl.split('#')[0]) onRouteChange();
+  };
+  window.setInterval(checkUrl, 300);
+  addEventListener('popstate', checkUrl);
 
   let scrollTimer: number | undefined;
   addEventListener('scroll', () => {
@@ -186,12 +218,45 @@ function main() {
     } else if (msg.type === 'highlight') {
       const els = msg.variantIds.flatMap((id) => (byVariant.get(id) ?? []).map((i) => elements[i])).filter((e) => e?.isConnected);
       sendResponse({ ok: true, count: highlight(els) });
+    } else if (msg.type === 'pick-start') {
+      clearHighlight();
+      startPicker({
+        mode: 'once',
+        onPick: (el) => void send({ type: 'picked', ...describePick(el) }).catch(() => undefined),
+        onStop: () => void send({ type: 'pick-cancelled' }).catch(() => undefined),
+      });
+      sendResponse({ ok: true });
+    } else if (msg.type === 'collect-start' || (msg.type === 'collect-toggle' && pickerMode() !== 'collect')) {
+      startCollecting();
+      sendResponse({ ok: true });
+    } else if (msg.type === 'collect-stop' || msg.type === 'collect-toggle') {
+      if (pickerMode() === 'collect') stopPicker();
+      void send({ type: 'collect-state', on: false }).catch(() => undefined);
+      sendResponse({ ok: true });
+    } else if (msg.type === 'find-similar') {
+      findSimilar(msg).then(sendResponse, (e: unknown) => sendResponse({ ok: false, count: 0, added: 0, error: String(e) }));
+      return true; // async
+    } else if (msg.type === 'highlight-selectors') {
+      sendResponse({ ok: true, count: highlightSelectors(msg.selectors) });
+    } else if (msg.type === 'pick-cancel') {
+      stopPicker();
+      sendResponse({ ok: true });
     } else if (msg.type === 'clear-highlight') {
       clearHighlight();
       sendResponse({ ok: true });
     }
     return false;
   });
+
+  function startCollecting() {
+    clearHighlight();
+    startPicker({
+      mode: 'collect',
+      onPick: async (el) => collectedLine(await collectElement(el, { source: 'picked' })),
+      onStop: () => void send({ type: 'collect-state', on: false }).catch(() => undefined),
+    });
+    void send({ type: 'collect-state', on: true }).catch(() => undefined);
+  }
 
   // Registered (record mode) scripts scan on load; the worker ignores the scan if recording is off.
   void scan(false);
